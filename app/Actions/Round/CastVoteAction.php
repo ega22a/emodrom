@@ -2,17 +2,13 @@
 
 namespace App\Actions\Round;
 
-use App\Data\EmotionData;
-use App\Data\EmotionVoteStatData;
-use App\Data\VoterData;
-use App\Data\VoteStatsData;
 use App\Events\VoteStatsUpdated;
 use App\Exceptions\GameException;
 use App\Models\Emotion;
 use App\Models\GameRound;
 use App\Models\Player;
 use App\Models\Vote;
-use Spatie\LaravelData\DataCollection;
+use App\Support\VoteStatsBuilder;
 
 class CastVoteAction
 {
@@ -35,34 +31,8 @@ class CastVoteAction
             'emotion_id' => $emotion->id,
         ]);
 
-        VoteStatsUpdated::dispatch($round->lobby, $this->buildStats($round));
+        VoteStatsUpdated::dispatch($round->lobby, VoteStatsBuilder::build($round));
 
         return $vote;
-    }
-
-    private function buildStats(GameRound $round): VoteStatsData
-    {
-        $votes = $round->votes()->with(['emotion', 'player'])->get();
-        $totalPlayers = $round->lobby->players()->count();
-
-        $stats = $votes
-            ->groupBy('emotion_id')
-            ->map(fn ($votesForEmotion) => new EmotionVoteStatData(
-                emotion: EmotionData::fromModel($votesForEmotion->first()->emotion),
-                votesCount: $votesForEmotion->count(),
-                voters: VoterData::collect(
-                    $votesForEmotion->map(fn (Vote $vote) => VoterData::fromModel($vote->player)),
-                    DataCollection::class
-                ),
-            ))
-            ->sortByDesc('votesCount')
-            ->values();
-
-        return new VoteStatsData(
-            roundNumber: $round->number,
-            stats: EmotionVoteStatData::collect($stats, DataCollection::class),
-            totalPlayers: $totalPlayers,
-            totalVotes: $votes->count(),
-        );
     }
 }

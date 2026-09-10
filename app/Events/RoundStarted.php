@@ -15,7 +15,7 @@ class RoundStarted implements ShouldBroadcastNow
 
     public int $roundNumber;
 
-    public function __construct(public Lobby $lobby, GameRound $round)
+    public function __construct(private Lobby $lobby, GameRound $round)
     {
         $this->roundNumber = $round->number;
     }
@@ -31,5 +31,13 @@ class RoundStarted implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'round.started';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return ['roundNumber' => $this->roundNumber];
     }
 }

@@ -13,7 +13,7 @@ class RoundEnded implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets;
 
-    public function __construct(public Lobby $lobby, public RoundResultData $result) {}
+    public function __construct(private Lobby $lobby, public RoundResultData $result) {}
 
     /**
      * @return array<int, Channel>
@@ -26,5 +26,13 @@ class RoundEnded implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'round.ended';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return ['result' => $this->result->toArray()];
     }
 }
