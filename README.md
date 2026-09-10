@@ -21,6 +21,14 @@ touch database/database.sqlite
 php artisan migrate --seed
 ```
 
+`.env.example` уже содержит рабочие `REVERB_APP_ID/KEY/SECRET` для локальной
+разработки, отдельно генерировать их не нужно. Если фронтенд падает с
+ошибкой `You must pass your app key when you instantiate Pusher`, значит
+одна из `REVERB_*`/`VITE_REVERB_*` переменных в вашем `.env` пустая или
+`npm run build`/`npm run dev` запускались до того, как `.env` появился —
+проверьте `.env` и пересоберите фронтенд (`npm run build` или перезапустите
+`npm run dev`).
+
 Приложению нужны три параллельных процесса — HTTP-сервер, WebSocket-сервер
 (Reverb) и сборщик фронтенда:
 
@@ -69,12 +77,11 @@ cd /var/www/kukarachas
 
 composer install --no-dev --optimize-autoloader
 npm ci
-npm run build
 ```
 
-`npm run build` кладёт собранные ассеты в `public/build` — после сборки
-Node.js на сервере больше не нужен для обслуживания запросов, только сам
-Apache и PHP.
+Сборку фронтенда (`npm run build`) не запускайте прямо сейчас — `VITE_REVERB_*`
+переменные, которые окажутся зашиты в JS-бандл при сборке, ещё не настроены.
+Сначала `.env` (шаг 3), потом сборка (шаг 4).
 
 ### 3. Файл `.env`
 
@@ -100,7 +107,9 @@ DB_CONNECTION=sqlite
 BROADCAST_CONNECTION=reverb
 QUEUE_CONNECTION=database
 
-# Свои случайные значения, не совпадающие с локальными!
+# Свои случайные значения, не совпадающие с локальными (по умолчанию в
+# .env.example лежат тестовые dev-заглушки — на боевом сервере их нужно
+# заменить, иначе кто угодно сможет подключиться к вашему Reverb):
 REVERB_APP_ID=<сгенерируйте-случайное-число>
 REVERB_APP_KEY=<сгенерируйте-случайную-строку>
 REVERB_APP_SECRET=<сгенерируйте-случайную-строку>
@@ -125,10 +134,25 @@ VITE_REVERB_SCHEME=https
 php -r 'echo bin2hex(random_bytes(4)), PHP_EOL, bin2hex(random_bytes(10)), PHP_EOL, bin2hex(random_bytes(10)), PHP_EOL;'
 ```
 
-Если меняли `VITE_REVERB_*`, пересоберите фронтенд (`npm run build`) —
-эти значения зашиваются в JS-бандл при сборке.
+### 4. Сборка фронтенда
 
-### 4. Права доступа
+```bash
+npm run build
+```
+
+`VITE_*`-переменные из `.env` встраиваются в JS-бандл в момент сборки, а не
+читаются им при каждой загрузке страницы — **это надо делать после того, как
+`.env` уже настроен**, и повторять после любой правки `REVERB_*`/`VITE_*`/
+`APP_NAME`. Если в браузере видите ошибку `You must pass your app key when
+you instantiate Pusher` — почти наверняка именно это: бандл собрали до того,
+как появился `REVERB_APP_KEY`, либо `.env` в момент сборки не подхватился.
+Правка: проверить `.env`, затем `npm run build` заново.
+
+`npm run build` кладёт собранные ассеты в `public/build` — после сборки
+Node.js на сервере больше не нужен для обслуживания запросов, только сам
+Apache и PHP.
+
+### 5. Права доступа
 
 ```bash
 sudo chown -R www-data:www-data /var/www/kukarachas
@@ -137,7 +161,7 @@ sudo find /var/www/kukarachas -type f -exec chmod 644 {} \;
 sudo chmod -R 775 /var/www/kukarachas/storage /var/www/kukarachas/bootstrap/cache
 ```
 
-### 5. Миграции и кеш конфигурации
+### 6. Миграции и кеш конфигурации
 
 ```bash
 cd /var/www/kukarachas
@@ -154,7 +178,7 @@ php artisan view:cache
 `config:cache`/`route:cache`/`view:cache` заново — иначе Laravel продолжит
 использовать закешированные старые значения.
 
-### 6. Служба Reverb (systemd)
+### 7. Служба Reverb (systemd)
 
 Reverb должен работать постоянно как отдельный процесс, слушая только
 `127.0.0.1` — наружу его порт светить не нужно, снаружи все запросы идут
@@ -192,7 +216,7 @@ sudo systemctl status kukarachas-reverb
 события в этом приложении используют `ShouldBroadcastNow` и отправляются
 синхронно, без очереди.
 
-### 7. Конфиг Apache для домена
+### 8. Конфиг Apache для домена
 
 Создайте `/etc/apache2/sites-available/kukarachas.conf`:
 
@@ -255,7 +279,7 @@ sudo apt install certbot python3-certbot-apache
 sudo certbot --apache -d kukarachas.example.com
 ```
 
-### 8. Проверка после деплоя
+### 9. Проверка после деплоя
 
 - `https://kukarachas.example.com/` открывает страницу создания лобби.
 - В консоли браузера на экране ведущего не должно быть ошибок
