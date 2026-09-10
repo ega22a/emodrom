@@ -30,6 +30,15 @@ class PlayerJoinAndVoteTest extends TestCase
             ->assertSee($lobby->code);
     }
 
+    public function test_a_stranger_visiting_a_closed_lobby_sees_a_closed_message_without_redirect_looping(): void
+    {
+        $lobby = Lobby::factory()->closed()->create();
+
+        $this->get(route('lobbies.join', $lobby))
+            ->assertOk()
+            ->assertSee('закрыто');
+    }
+
     public function test_joining_creates_a_player_and_redirects_to_the_play_screen(): void
     {
         $lobby = Lobby::factory()->create();

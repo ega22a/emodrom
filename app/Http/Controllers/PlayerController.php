@@ -22,12 +22,14 @@ class PlayerController extends Controller
 
     public function create(Lobby $lobby): View|RedirectResponse
     {
-        if (! $lobby->isOpen()) {
+        if ($this->sessions->resolve($lobby)) {
             return redirect()->route('lobbies.play', $lobby);
         }
 
-        if ($this->sessions->resolve($lobby)) {
-            return redirect()->route('lobbies.play', $lobby);
+        if (! $lobby->isOpen()) {
+            // A visitor who never joined has no play screen to send them to
+            // — redirecting there would bounce straight back here forever.
+            return view('players.closed');
         }
 
         return view('players.join', [
