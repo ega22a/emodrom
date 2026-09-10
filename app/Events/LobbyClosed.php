@@ -12,7 +12,7 @@ class LobbyClosed implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets;
 
-    public function __construct(public Lobby $lobby) {}
+    public function __construct(private Lobby $lobby) {}
 
     /**
      * @return array<int, Channel>
@@ -25,5 +25,13 @@ class LobbyClosed implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'lobby.closed';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return [];
     }
 }

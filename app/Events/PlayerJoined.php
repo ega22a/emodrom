@@ -16,7 +16,7 @@ class PlayerJoined implements ShouldBroadcastNow
 
     public PlayerData $player;
 
-    public function __construct(public Lobby $lobby, Player $player)
+    public function __construct(private Lobby $lobby, Player $player)
     {
         $this->player = PlayerData::fromModel($player);
     }
@@ -32,5 +32,13 @@ class PlayerJoined implements ShouldBroadcastNow
     public function broadcastAs(): string
     {
         return 'player.joined';
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function broadcastWith(): array
+    {
+        return ['player' => $this->player->toArray()];
     }
 }

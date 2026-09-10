@@ -7,3 +7,11 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+/*
+ * Avatar and emotion colors are picked at runtime from App\Support\Avatars
+ * and the emotions table, so Tailwind never sees those class names as
+ * literal strings in a template. This forces every shade we use into the
+ * build regardless.
+ */
+@source inline("{bg,border,ring,text}-{amber,orange,red,rose,pink,fuchsia,purple,violet,indigo,blue,sky,cyan,teal,emerald,green,lime,yellow,stone,gray}-{100,300,500,600,700}");
