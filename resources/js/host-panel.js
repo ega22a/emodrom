@@ -7,6 +7,11 @@ document.addEventListener('alpine:init', () => {
         voteProgress: { votedCount: 0, totalVoters: Math.max(initialState.lobby.players.length - 1, 0) },
         readerHasChosen: false,
         working: false,
+        scoredInterrogationIds: new Set(
+            (initialState.interrogation?.entries ?? [])
+                .filter((entry) => entry.sparksAwarded !== null)
+                .map((entry) => entry.id)
+        ),
 
         get screen() {
             if (this.lobby.status === 'closed') {
@@ -55,9 +60,20 @@ document.addEventListener('alpine:init', () => {
                     this.lastResult = event.result;
                     this.lobby.roundsPlayed = event.result.roundNumber;
                     this.round = null;
+
+                    event.result.rewardedPlayerIds.forEach((id) => {
+                        this.creditPlayer(id, event.result.rewardSparks);
+                    });
                 })
                 .listen('.interrogation.updated', (event) => {
                     this.interrogation = event.state;
+
+                    event.state.entries.forEach((entry) => {
+                        if (entry.sparksAwarded !== null && !this.scoredInterrogationIds.has(entry.id)) {
+                            this.scoredInterrogationIds.add(entry.id);
+                            this.creditPlayer(entry.player.id, entry.sparksAwarded);
+                        }
+                    });
                 })
                 .listen('.round.cancelled', () => {
                     this.round = null;
@@ -71,6 +87,14 @@ document.addEventListener('alpine:init', () => {
                 .listen('.lobby.closed', () => {
                     this.lobby.status = 'closed';
                 });
+        },
+
+        creditPlayer(playerId, sparks) {
+            const player = this.lobby.players.find((p) => p.id === playerId);
+
+            if (player) {
+                player.sparksBalance += sparks;
+            }
         },
 
         async startRound() {
