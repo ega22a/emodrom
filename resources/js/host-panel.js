@@ -1,5 +1,5 @@
-document.addEventListener('alpine:init', () => {
-    Alpine.data('hostPanel', (initialState, lobbyCode) => ({
+export function hostPanel(initialState, lobbyCode) {
+    return {
         lobby: initialState.lobby,
         round: initialState.round,
         lastResult: initialState.lastResult,
@@ -208,5 +208,9 @@ document.addEventListener('alpine:init', () => {
                 alert(error.message);
             }
         },
-    }));
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('hostPanel', hostPanel);
 });
