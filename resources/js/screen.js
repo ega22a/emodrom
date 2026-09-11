@@ -60,7 +60,14 @@ document.addEventListener('alpine:init', () => {
                     }
                 })
                 .listen('.round.started', (event) => {
-                    this.round = { number: event.roundNumber, status: 'voting', reader: event.reader, question: event.question };
+                    this.round = {
+                        number: event.roundNumber,
+                        status: 'voting',
+                        reader: event.reader,
+                        question: event.question,
+                        mirrorEnabled: event.mirrorEnabled,
+                        cocktailEnabled: event.cocktailEnabled,
+                    };
                     this.voteProgress = { votedCount: 0, totalVoters: Math.max(this.lobby.players.length - 1, 0) };
                     this.lastResult = null;
                     this.playSfx('game_start');

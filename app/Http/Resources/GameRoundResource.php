@@ -29,6 +29,8 @@ class GameRoundResource extends JsonResource
             'status' => $this->status->value,
             'reader' => PlayerResource::make($this->reader),
             'question' => QuestionData::fromModel($this->question)->toArray(),
+            'mirrorEnabled' => $this->mirror_enabled,
+            'cocktailEnabled' => $this->cocktail_enabled,
         ];
     }
 }

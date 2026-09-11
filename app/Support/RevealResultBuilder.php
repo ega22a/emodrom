@@ -44,7 +44,7 @@ final class RevealResultBuilder
             ->reject(fn ($player) => $player->id === $round->reader_player_id || $votedPlayerIds->contains($player->id));
 
         $matchedVoterIds = $votes
-            ->where('emotion_id', $round->reader_emotion_id)
+            ->filter(fn (Vote $vote) => $vote->matches($round->reader_emotion_id))
             ->pluck('player_id')
             ->values()
             ->all();
@@ -69,6 +69,8 @@ final class RevealResultBuilder
                 $round->interrogations->map(fn ($interrogation) => VoterData::fromModel($interrogation->player)),
                 DataCollection::class
             ),
+            mirrorEnabled: $round->mirror_enabled,
+            cocktailEnabled: $round->cocktail_enabled,
         );
     }
 }

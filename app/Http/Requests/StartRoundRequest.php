@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class CastVoteRequest extends FormRequest
+class StartRoundRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,8 +23,8 @@ class CastVoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'emotion_id' => ['required', 'integer', 'exists:emotions,id'],
-            'secondary_emotion_id' => ['nullable', 'integer', 'different:emotion_id', 'exists:emotions,id'],
+            'mirror' => ['sometimes', 'boolean'],
+            'cocktail' => ['sometimes', 'boolean'],
         ];
     }
 }

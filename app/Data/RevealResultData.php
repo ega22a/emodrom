@@ -25,5 +25,7 @@ class RevealResultData extends Data
         public bool $readerTookReward,
         public bool $interrogationEnabled,
         public DataCollection $interrogationTargets,
+        public bool $mirrorEnabled,
+        public bool $cocktailEnabled,
     ) {}
 }

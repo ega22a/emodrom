@@ -16,6 +16,7 @@ class Vote extends Model
         'game_round_id',
         'player_id',
         'emotion_id',
+        'secondary_emotion_id',
     ];
 
     /**
@@ -40,5 +41,18 @@ class Vote extends Model
     public function emotion(): BelongsTo
     {
         return $this->belongsTo(Emotion::class);
+    }
+
+    /**
+     * @return BelongsTo<Emotion, $this>
+     */
+    public function secondaryEmotion(): BelongsTo
+    {
+        return $this->belongsTo(Emotion::class, 'secondary_emotion_id');
+    }
+
+    public function matches(int $emotionId): bool
+    {
+        return $this->emotion_id === $emotionId || $this->secondary_emotion_id === $emotionId;
     }
 }

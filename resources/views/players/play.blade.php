@@ -110,8 +110,14 @@
 
             <template x-if="screen === 'voting'">
                 <div class="w-full animate-pop-in text-left">
-                    <h1 class="text-center text-xl font-bold text-stone-900">Что вы сейчас чувствуете?</h1>
-                    <p class="mt-1 text-center text-sm text-stone-500">Выберите эмоцию, которая ближе всего к тому, что почувствовали бы именно вы — это не игра в угадайку</p>
+                    <h1 class="text-center text-xl font-bold text-stone-900" x-text="round.mirrorEnabled ? 'Какую эмоцию, по-вашему, чувствует чтец?' : 'Что вы сейчас чувствуете?'"></h1>
+                    <p class="mt-1 text-center text-sm text-stone-500" x-show="!round.cocktailEnabled" x-text="round.mirrorEnabled ? 'Поставьте себя на место чтеца — угадайте, что почувствовал бы он' : 'Выберите эмоцию, которая ближе всего к тому, что почувствовали бы именно вы — это не игра в угадайку'"></p>
+                    <p class="mt-1 text-center text-sm text-stone-500" x-show="round.cocktailEnabled" x-cloak>
+                        Выберите две эмоции, которые смешиваются в этой ситуации
+                        <template x-if="cocktailPick">
+                            <span> — выбрано 1 из 2</span>
+                        </template>
+                    </p>
 
                     <div class="mt-6 grid grid-cols-2 gap-3">
                         <template x-for="emotion in availableEmotions" :key="emotion.id">
@@ -120,7 +126,7 @@
                                 @click="vote(emotion)"
                                 :disabled="voting"
                                 class="flex animate-drop-in flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-white shadow-sm transition active:scale-95"
-                                :class="'bg-' + emotion.color + '-500'"
+                                :class="'bg-' + emotion.color + '-500' + (cocktailPick && cocktailPick.id === emotion.id ? ' ring-4 ring-offset-2 ring-stone-800 scale-105' : '')"
                             >
                                 <svg class="size-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <use :href="'#icon-' + emotion.icon"></use>

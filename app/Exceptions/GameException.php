@@ -83,6 +83,11 @@ class GameException extends Exception
         return new self('Сейчас допрашивается другой игрок.');
     }
 
+    public static function invalidVoteShape(): self
+    {
+        return new self('Для этого раунда нужно выбрать другое количество эмоций.');
+    }
+
     public function render(Request $request): JsonResponse
     {
         return response()->json([

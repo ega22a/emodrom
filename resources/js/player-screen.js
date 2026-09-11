@@ -13,6 +13,7 @@ document.addEventListener('alpine:init', () => {
         submitting: false,
         buying: false,
         toast: null,
+        cocktailPick: null,
 
         get screen() {
             if (this.lobbyStatus === 'closed') {
@@ -38,6 +39,7 @@ document.addEventListener('alpine:init', () => {
             window.Echo.channel(`lobby.${lobbyCode}`)
                 .listen('.round.started', () => {
                     this.toast = null;
+                    this.cocktailPick = null;
                     this.refresh();
                 })
                 .listen('.reader.reassigned', () => {
@@ -79,17 +81,41 @@ document.addEventListener('alpine:init', () => {
                 return;
             }
 
+            if (this.round?.cocktailEnabled) {
+                if (this.cocktailPick && this.cocktailPick.id === emotion.id) {
+                    this.cocktailPick = null;
+                    return;
+                }
+
+                if (!this.cocktailPick) {
+                    this.cocktailPick = emotion;
+                    return;
+                }
+
+                await this.submitVote(this.cocktailPick, emotion);
+                return;
+            }
+
+            await this.submitVote(emotion, null);
+        },
+
+        async submitVote(emotion, secondaryEmotion) {
             this.voting = true;
 
             try {
                 await window.api(`/play/${lobbyCode}/vote`, {
                     method: 'POST',
-                    body: JSON.stringify({ emotion_id: emotion.id }),
+                    body: JSON.stringify({
+                        emotion_id: emotion.id,
+                        secondary_emotion_id: secondaryEmotion ? secondaryEmotion.id : null,
+                    }),
                 });
 
                 this.hasVoted = true;
                 this.votedEmotionId = emotion.id;
+                this.cocktailPick = null;
             } catch (error) {
+                this.cocktailPick = null;
                 alert(error.message);
             } finally {
                 this.voting = false;

@@ -29,6 +29,8 @@ class GameRoundFactory extends Factory
             'reader_player_id' => Player::factory(),
             'reader_emotion_id' => null,
             'current_interrogation_player_id' => null,
+            'mirror_enabled' => false,
+            'cocktail_enabled' => false,
             'started_at' => now(),
             'revealed_at' => null,
         ];
@@ -39,6 +41,20 @@ class GameRoundFactory extends Factory
         return $this->state(fn (array $attributes): array => [
             'status' => RoundStatus::Revealed,
             'revealed_at' => now(),
+        ]);
+    }
+
+    public function mirror(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'mirror_enabled' => true,
+        ]);
+    }
+
+    public function cocktail(): static
+    {
+        return $this->state(fn (array $attributes): array => [
+            'cocktail_enabled' => true,
         ]);
     }
 }

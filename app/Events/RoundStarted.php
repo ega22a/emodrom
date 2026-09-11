@@ -21,6 +21,10 @@ class RoundStarted implements ShouldBroadcastNow
 
     public QuestionData $question;
 
+    public bool $mirrorEnabled;
+
+    public bool $cocktailEnabled;
+
     public function __construct(private Lobby $lobby, GameRound $round)
     {
         $round->loadMissing(['reader', 'question']);
@@ -28,6 +32,8 @@ class RoundStarted implements ShouldBroadcastNow
         $this->roundNumber = $round->number;
         $this->reader = PlayerData::fromModel($round->reader);
         $this->question = QuestionData::fromModel($round->question);
+        $this->mirrorEnabled = $round->mirror_enabled;
+        $this->cocktailEnabled = $round->cocktail_enabled;
     }
 
     /**
@@ -52,6 +58,8 @@ class RoundStarted implements ShouldBroadcastNow
             'roundNumber' => $this->roundNumber,
             'reader' => $this->reader->toArray(),
             'question' => $this->question->toArray(),
+            'mirrorEnabled' => $this->mirrorEnabled,
+            'cocktailEnabled' => $this->cocktailEnabled,
         ];
     }
 }
