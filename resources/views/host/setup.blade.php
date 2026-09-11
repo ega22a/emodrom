@@ -36,12 +36,12 @@
                 <span class="mb-1.5 block text-sm font-medium text-stone-700">Число раундов</span>
                 <div class="grid grid-cols-3 gap-2">
                     @foreach ($roundLimitChoices as $choice)
-                        <label class="flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
+                        <label class="flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 transition has-[:checked]:scale-105 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
                             <input type="radio" name="round_limit" value="{{ $choice }}" class="sr-only" @checked(old('round_limit', $lobby->round_limit) == $choice)>
                             {{ $choice }}
                         </label>
                     @endforeach
-                    <label class="col-span-3 flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
+                    <label class="col-span-3 flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 transition has-[:checked]:scale-105 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
                         <input type="radio" name="round_limit" value="" class="sr-only" @checked(old('round_limit', $lobby->round_limit) === null)>
                         Без ограничений — закончу сам
                     </label>
@@ -63,11 +63,11 @@
             <div>
                 <span class="mb-1.5 block text-sm font-medium text-stone-700">Набор эмоций</span>
                 <div class="grid grid-cols-2 gap-2">
-                    <label class="flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
+                    <label class="flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 transition has-[:checked]:scale-105 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
                         <input type="radio" name="emotion_set" value="classic" class="sr-only" @checked(old('emotion_set', $lobby->emotion_set->value) === 'classic')>
                         Классический
                     </label>
-                    <label class="flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
+                    <label class="flex cursor-pointer items-center justify-center rounded-xl border border-stone-300 py-2.5 text-sm font-semibold text-stone-700 transition has-[:checked]:scale-105 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 has-[:checked]:text-amber-700">
                         <input type="radio" name="emotion_set" value="extended" class="sr-only" @checked(old('emotion_set', $lobby->emotion_set->value) === 'extended')>
                         Расширенный
                     </label>

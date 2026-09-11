@@ -1,6 +1,6 @@
 <x-layout title="Эмодром">
     <div class="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 py-12 text-center">
-        <div class="flex size-24 items-center justify-center rounded-full bg-amber-500 text-white shadow-md">
+        <div class="flex size-24 animate-pop-in items-center justify-center rounded-full bg-amber-500 text-white shadow-md">
             <x-icon name="bug" class="size-12" />
         </div>
 

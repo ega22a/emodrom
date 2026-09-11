@@ -20,17 +20,17 @@
 
         <main class="mt-6 flex flex-1 flex-col">
             <template x-if="screen === 'closed'">
-                <div class="flex flex-1 flex-col items-center justify-center text-center">
+                <div class="flex flex-1 animate-pop-in flex-col items-center justify-center text-center">
                     <x-icon name="party-popper" class="size-16 text-stone-400" />
                     <h2 class="mt-4 text-2xl font-bold text-stone-900">Лобби закрыто</h2>
-                    <a href="{{ route('host.create') }}" class="mt-6 rounded-full bg-amber-500 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-amber-600">
+                    <a href="{{ route('host.create') }}" class="mt-6 rounded-full bg-amber-500 px-6 py-3 font-semibold text-white shadow-md transition hover:bg-amber-600 active:scale-95">
                         Новое лобби
                     </a>
                 </div>
             </template>
 
             <template x-if="screen === 'idle' || screen === 'revealed'">
-                <div>
+                <div class="animate-pop-in">
                     <template x-if="screen === 'revealed'">
                         <div class="mb-6 rounded-2xl bg-white p-4 shadow-sm">
                             <p class="text-sm font-semibold text-stone-500">Раунд <span x-text="lastResult.roundNumber"></span> — итог</p>
@@ -54,7 +54,7 @@
                     </h2>
                     <div class="flex flex-wrap gap-4">
                         <template x-for="p in lobby.players" :key="p.id">
-                            <div class="flex flex-col items-center gap-1">
+                            <div class="flex animate-drop-in flex-col items-center gap-1">
                                 <div class="inline-flex size-14 items-center justify-center rounded-full text-white shadow-sm" :class="'bg-' + p.avatarColor + '-500'">
                                     <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use :href="'#icon-' + p.avatar"></use></svg>
                                 </div>
@@ -71,7 +71,7 @@
             </template>
 
             <template x-if="screen === 'voting'">
-                <div>
+                <div class="animate-pop-in">
                     <div class="rounded-2xl bg-white p-4 shadow-sm">
                         <div class="flex items-center gap-2 text-sm font-semibold text-stone-500">
                             <div class="inline-flex size-6 items-center justify-center rounded-full text-white" :class="'bg-' + round.reader.avatarColor + '-500'">
@@ -100,7 +100,7 @@
                                 <button
                                     type="button"
                                     @click="reassignReader(p.id)"
-                                    class="rounded-full border border-stone-300 px-3 py-1.5 text-sm text-stone-700 transition hover:bg-stone-100"
+                                    class="rounded-full border border-stone-300 px-3 py-1.5 text-sm text-stone-700 transition hover:bg-stone-100 active:scale-95"
                                     x-text="p.name"
                                 ></button>
                             </template>
@@ -110,14 +110,14 @@
             </template>
 
             <template x-if="screen === 'interrogating'">
-                <div>
+                <div class="animate-pop-in">
                     <h2 class="text-lg font-semibold text-stone-700">Допрос</h2>
                     <p class="mt-1 text-sm text-stone-500">Наименьшая группа не угадала чтеца — пусть объяснятся.</p>
 
                     <div class="mt-4 space-y-2">
                         <template x-for="entry in interrogation.entries" :key="entry.player.id">
                             <div
-                                class="flex items-center justify-between rounded-xl border p-3"
+                                class="flex animate-drop-in items-center justify-between rounded-xl border p-3 transition-colors"
                                 :class="entry.isCurrent ? 'border-amber-400 bg-amber-50' : 'border-stone-200'"
                             >
                                 <div class="flex items-center gap-2">
@@ -128,15 +128,15 @@
                                 </div>
 
                                 <template x-if="entry.sparksAwarded !== null">
-                                    <span class="text-sm font-semibold text-amber-600" x-text="'+' + entry.sparksAwarded"></span>
+                                    <span class="animate-pop-in text-sm font-semibold text-amber-600" x-text="'+' + entry.sparksAwarded"></span>
                                 </template>
 
-                                <div class="flex gap-1.5" x-show="entry.isCurrent">
+                                <div class="flex gap-1.5" x-show="entry.isCurrent" x-transition>
                                     <template x-for="value in [0, 1, 3, 5]" :key="value">
                                         <button
                                             type="button"
                                             @click="awardInterrogation(entry, value)"
-                                            class="size-9 rounded-full bg-stone-800 text-sm font-semibold text-white transition hover:bg-stone-700"
+                                            class="size-9 rounded-full bg-stone-800 text-sm font-semibold text-white transition hover:bg-stone-700 active:scale-90"
                                             x-text="value"
                                         ></button>
                                     </template>
@@ -148,7 +148,7 @@
                     <button
                         type="button"
                         @click="skipInterrogation"
-                        class="mt-4 text-sm font-medium text-stone-400 underline"
+                        class="mt-4 text-sm font-medium text-stone-400 underline active:scale-95"
                     >
                         Пропустить допрос
                     </button>
@@ -156,38 +156,38 @@
             </template>
         </main>
 
-        <footer class="mt-8 flex items-center justify-between gap-3 border-t border-stone-200 pt-6" x-show="screen !== 'closed'" x-cloak>
-            <div class="flex gap-2">
-                <button type="button" @click="closeLobby" class="rounded-full border border-stone-300 px-4 py-2.5 text-sm font-medium text-stone-600 transition hover:bg-stone-100">
-                    Закрыть лобби
-                </button>
-                <a :href="newSessionUrl" class="rounded-full border border-stone-300 px-4 py-2.5 text-sm font-medium text-stone-600 transition hover:bg-stone-100">
-                    Новая сессия
-                </a>
-            </div>
-
+        <footer class="mt-8 flex flex-col gap-2 border-t border-stone-200 pt-6" x-show="screen !== 'closed'" x-cloak>
             <button
                 type="button"
                 @click="startRound"
                 x-show="screen === 'idle' || screen === 'revealed'"
                 :disabled="working || lobby.players.length < 2 || roundLimitReached"
-                class="rounded-full bg-amber-500 px-6 py-2.5 font-semibold text-white shadow-md shadow-amber-500/30 transition hover:bg-amber-600 disabled:opacity-50"
+                class="w-full rounded-full bg-amber-500 py-3 font-semibold text-white shadow-md shadow-amber-500/30 transition hover:bg-amber-600 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
                 x-text="lobby.roundsPlayed > 0 ? 'Следующий раунд' : 'Начать раунд'"
             ></button>
 
-            <div class="flex gap-2" x-show="screen === 'voting'">
-                <button type="button" @click="cancelRound" :disabled="working" class="rounded-full border border-red-300 px-4 py-2.5 text-sm font-medium text-red-600 transition hover:bg-red-50">
-                    Отменить раунд
-                </button>
-                <button
-                    type="button"
-                    @click="revealRound"
-                    :disabled="working || !readerHasChosen"
-                    class="rounded-full bg-amber-500 px-6 py-2.5 font-semibold text-white shadow-md shadow-amber-500/30 transition hover:bg-amber-600 disabled:opacity-50"
-                >
-                    Показать результаты
-                </button>
-            </div>
+            <template x-if="screen === 'voting'">
+                <div class="flex flex-col gap-2">
+                    <button
+                        type="button"
+                        @click="revealRound"
+                        :disabled="working || !readerHasChosen"
+                        class="w-full rounded-full bg-amber-500 py-3 font-semibold text-white shadow-md shadow-amber-500/30 transition hover:bg-amber-600 active:scale-95 disabled:opacity-50 disabled:active:scale-100"
+                    >
+                        Показать результаты
+                    </button>
+                    <button type="button" @click="cancelRound" :disabled="working" class="w-full rounded-full border border-red-300 py-3 text-sm font-medium text-red-600 transition hover:bg-red-50 active:scale-95">
+                        Отменить раунд
+                    </button>
+                </div>
+            </template>
+
+            <button type="button" @click="closeLobby" class="w-full rounded-full border border-stone-300 py-3 text-sm font-medium text-stone-600 transition hover:bg-stone-100 active:scale-95">
+                Закрыть лобби
+            </button>
+            <a :href="newSessionUrl" class="w-full rounded-full border border-stone-300 py-3 text-center text-sm font-medium text-stone-600 transition hover:bg-stone-100 active:scale-95">
+                Новая сессия
+            </a>
         </footer>
     </div>
 
