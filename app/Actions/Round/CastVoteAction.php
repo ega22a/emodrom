@@ -44,7 +44,7 @@ class CastVoteAction
             'secondary_emotion_id' => $secondaryEmotion?->id,
         ]);
 
-        $totalVoters = $round->lobby->players()->count() - 1;
+        $totalVoters = $round->lobby->activePlayers()->count() - 1;
 
         VoteProgressUpdated::dispatch($round->lobby, new VoteProgressData(
             roundNumber: $round->number,

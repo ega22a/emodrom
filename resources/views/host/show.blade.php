@@ -16,6 +16,7 @@
         <p class="mt-2 text-center text-xs text-stone-400">
             Экран для игроков:
             <a class="underline" href="{{ route('screen.show', $lobby) }}" target="_blank">{{ route('screen.show', $lobby) }}</a>
+            — или откройте {{ route('screen.join') }} и введите код {{ $lobby->code }}
         </p>
 
         <main class="mt-6 flex flex-1 flex-col">
@@ -55,8 +56,18 @@
                     <div class="flex flex-wrap gap-4">
                         <template x-for="p in lobby.players" :key="p.id">
                             <div class="flex animate-drop-in flex-col items-center gap-1">
-                                <div class="inline-flex size-14 items-center justify-center rounded-full text-white shadow-sm" :class="'bg-' + p.avatarColor + '-500'">
-                                    <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use :href="'#icon-' + p.avatar"></use></svg>
+                                <div class="relative">
+                                    <div class="inline-flex size-14 items-center justify-center rounded-full text-white shadow-sm" :class="'bg-' + p.avatarColor + '-500'">
+                                        <svg class="size-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use :href="'#icon-' + p.avatar"></use></svg>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        @click="removePlayer(p)"
+                                        aria-label="Убрать игрока"
+                                        class="absolute -right-1 -top-1 flex size-5 items-center justify-center rounded-full bg-stone-700 text-white shadow-sm transition active:scale-90"
+                                    >
+                                        <x-icon name="x" class="size-3" />
+                                    </button>
                                 </div>
                                 <span class="max-w-16 truncate text-xs font-medium text-stone-600" x-text="p.name"></span>
                                 <span class="text-xs text-amber-600" x-text="p.sparksBalance + ' ✦'"></span>

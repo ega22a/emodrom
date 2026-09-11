@@ -21,7 +21,7 @@ final class RevealResultBuilder
 {
     public static function build(GameRound $round): RevealResultData
     {
-        $round->loadMissing(['question', 'reader', 'readerEmotion', 'lobby.players', 'votes.emotion', 'votes.player', 'interrogations.player']);
+        $round->loadMissing(['question', 'reader', 'readerEmotion', 'lobby.activePlayers', 'votes.emotion', 'votes.player', 'interrogations.player']);
 
         $votes = $round->votes;
 
@@ -40,7 +40,7 @@ final class RevealResultBuilder
             ->values();
 
         $votedPlayerIds = $votes->pluck('player_id');
-        $abstainers = $round->lobby->players
+        $abstainers = $round->lobby->activePlayers
             ->reject(fn ($player) => $player->id === $round->reader_player_id || $votedPlayerIds->contains($player->id));
 
         $matchedVoterIds = $votes

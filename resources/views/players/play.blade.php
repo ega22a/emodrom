@@ -43,6 +43,14 @@
         </div>
 
         <main class="flex flex-1 flex-col items-center justify-center py-10 text-center">
+            <template x-if="screen === 'removed'">
+                <div class="animate-pop-in">
+                    <svg class="mx-auto size-16 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-eye-off"></use></svg>
+                    <h1 class="mt-4 text-2xl font-bold text-stone-900">Вы вышли из игры</h1>
+                    <p class="mt-2 text-stone-500">Ведущий убрал вас из лобби. Попросите его создать новую ссылку, если захотите вернуться.</p>
+                </div>
+            </template>
+
             <template x-if="screen === 'closed'">
                 <div class="animate-pop-in">
                     <svg class="mx-auto size-16 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-party-popper"></use></svg>

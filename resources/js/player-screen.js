@@ -1,6 +1,7 @@
 document.addEventListener('alpine:init', () => {
     Alpine.data('playerScreen', (initialState, lobbyCode) => ({
         lobbyStatus: initialState.lobbyStatus,
+        removed: initialState.removed,
         player: initialState.player,
         round: initialState.round,
         isReader: initialState.isReader,
@@ -16,6 +17,10 @@ document.addEventListener('alpine:init', () => {
         cocktailPick: null,
 
         get screen() {
+            if (this.removed) {
+                return 'removed';
+            }
+
             if (this.lobbyStatus === 'closed') {
                 return 'closed';
             }
@@ -56,6 +61,11 @@ document.addEventListener('alpine:init', () => {
                     this.isBeingInterrogated = event.state.entries.some(
                         (entry) => entry.isCurrent && entry.player.id === this.player.id
                     );
+                })
+                .listen('.player.removed', (event) => {
+                    if (event.playerId === this.player.id) {
+                        this.removed = true;
+                    }
                 })
                 .listen('.lobby.closed', () => {
                     this.lobbyStatus = 'closed';

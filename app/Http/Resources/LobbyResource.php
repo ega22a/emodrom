@@ -22,7 +22,7 @@ class LobbyResource extends JsonResource
             'code' => $this->code,
             'status' => $this->status->value,
             'joinUrl' => route('lobbies.join', $this->resource),
-            'players' => PlayerResource::collection($this->whenLoaded('players')),
+            'players' => PlayerResource::collection($this->whenLoaded('activePlayers')),
             'isConfigured' => $this->isSessionConfigured(),
             'roundLimit' => $this->round_limit,
             'roundsPlayed' => $this->roundsPlayedCount(),

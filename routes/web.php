@@ -18,6 +18,7 @@ Route::get('/host/{lobby:code}/setup', [HostController::class, 'setup'])->name('
 Route::post('/host/{lobby:code}/setup', [HostController::class, 'configure'])->name('host.configure');
 Route::get('/host/{lobby:code}', [HostController::class, 'show'])->name('host.show');
 Route::post('/host/{lobby:code}/close', [HostController::class, 'close'])->name('host.close');
+Route::post('/host/{lobby:code}/players/{player}/remove', [HostController::class, 'removePlayer'])->name('host.players.remove');
 
 Route::post('/host/{lobby:code}/round', [RoundController::class, 'store'])->name('host.round.store');
 Route::post('/host/{lobby:code}/round/reveal', [RoundController::class, 'reveal'])->name('host.round.reveal');
@@ -28,6 +29,8 @@ Route::post('/host/{lobby:code}/interrogation/{interrogation}/award', [Interroga
 Route::post('/host/{lobby:code}/interrogation/skip', [InterrogationController::class, 'skip'])->name('host.interrogation.skip');
 
 // Public display, meant for the projector — no controls, nothing private.
+Route::get('/screen', [ScreenController::class, 'join'])->name('screen.join');
+Route::post('/screen', [ScreenController::class, 'connect'])->name('screen.connect');
 Route::get('/screen/{lobby:code}', [ScreenController::class, 'show'])->name('screen.show');
 
 Route::view('/about', 'about')->name('about');
