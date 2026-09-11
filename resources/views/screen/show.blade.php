@@ -1,7 +1,7 @@
 <x-layout :title="$lobby->code.' — экран'">
     <div
         class="flex min-h-dvh flex-col p-8 sm:p-12"
-        x-data="screenDisplay(@js($state), @js($lobby->code))"
+        x-data="screenDisplay(@js($state), @js($lobby->code), @js(asset('static/assets/sfx')))"
     >
         <header class="flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center gap-3">
@@ -19,10 +19,10 @@
             <div class="flex items-center gap-3">
                 <button
                     type="button"
-                    @click="toggleMusic()"
+                    @click="toggleSound()"
                     class="flex size-11 items-center justify-center rounded-full bg-white text-stone-500 shadow-sm transition hover:text-stone-700"
-                    :class="musicEnabled ? 'text-amber-600' : ''"
-                    :aria-label="musicEnabled ? 'Выключить музыку' : 'Включить музыку'"
+                    :class="soundEnabled ? 'text-amber-600' : ''"
+                    :aria-label="soundEnabled ? 'Выключить звук' : 'Включить звук'"
                 >
                     <x-icon name="music-2" class="size-5" />
                 </button>

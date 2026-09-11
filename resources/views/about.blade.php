@@ -20,17 +20,35 @@
             </p>
         </section>
 
+        @php $music = config('credits.music.lobby'); @endphp
         <section class="mt-10">
             <h2 class="flex items-center gap-2 text-lg font-semibold text-stone-800">
                 <x-icon name="music-2" class="size-5 text-amber-500" /> Музыка
             </h2>
             <p class="mt-3 text-stone-600">
-                Фоновая музыка лобби — «{{ $musicCredit['sound_name'] }}» автора
-                <a href="{{ $musicCredit['author_url'] }}" target="_blank" rel="noopener" class="font-medium text-amber-600 underline">{{ $musicCredit['author_name'] }}</a>,
-                с <a href="{{ $musicCredit['sound_url'] }}" target="_blank" rel="noopener" class="underline">freesound.org</a>,
+                Фоновая музыка лобби — «{{ $music['sound_name'] }}» автора
+                <a href="{{ $music['author_url'] }}" target="_blank" rel="noopener" class="font-medium text-amber-600 underline">{{ $music['author_name'] }}</a>,
+                с <a href="{{ $music['sound_url'] }}" target="_blank" rel="noopener" class="underline">freesound.org</a>,
                 распространяется по лицензии
-                <a href="{{ $musicCredit['license_url'] }}" target="_blank" rel="noopener" class="underline">{{ $musicCredit['license_name'] }}</a>.
+                <a href="{{ $music['license_url'] }}" target="_blank" rel="noopener" class="underline">{{ $music['license_name'] }}</a>.
             </p>
+        </section>
+
+        <section class="mt-10">
+            <h2 class="flex items-center gap-2 text-lg font-semibold text-stone-800">
+                <x-icon name="zap" class="size-5 text-amber-500" /> Звуковые эффекты
+            </h2>
+            <p class="mt-3 text-stone-600">Все с freesound.org:</p>
+            <ul class="mt-3 space-y-2 text-sm text-stone-600">
+                @foreach (config('credits.sfx') as $sfx)
+                    <li>
+                        «{{ $sfx['sound_name'] }}» —
+                        <a href="{{ $sfx['author_url'] }}" target="_blank" rel="noopener" class="font-medium text-amber-600 underline">{{ $sfx['author_name'] }}</a>,
+                        <a href="{{ $sfx['sound_url'] }}" target="_blank" rel="noopener" class="underline">источник</a>,
+                        <a href="{{ $sfx['license_url'] }}" target="_blank" rel="noopener" class="underline">{{ $sfx['license_name'] }}</a>
+                    </li>
+                @endforeach
+            </ul>
         </section>
     </div>
 </x-layout>

@@ -30,16 +30,7 @@ Route::post('/host/{lobby:code}/interrogation/skip', [InterrogationController::c
 // Public display, meant for the projector — no controls, nothing private.
 Route::get('/screen/{lobby:code}', [ScreenController::class, 'show'])->name('screen.show');
 
-Route::view('/about', 'about', [
-    'musicCredit' => [
-        'sound_name' => 'title screen (Music Loop, 128bpm, G major)',
-        'sound_url' => 'https://freesound.org/people/vibritherabjit123/sounds/862255/',
-        'author_name' => 'vibritherabjit123',
-        'author_url' => 'https://freesound.org/people/vibritherabjit123/',
-        'license_name' => 'Attribution 4.0',
-        'license_url' => 'https://creativecommons.org/licenses/by/4.0/',
-    ],
-])->name('about');
+Route::view('/about', 'about')->name('about');
 
 Route::get('/lobbies/{lobby:code}/qr', [QrCodeController::class, 'show'])->name('lobbies.qr');
 
