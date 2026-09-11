@@ -42,8 +42,8 @@
                         <button
                             type="button"
                             @click="avatar = '{{ $option->key }}'"
-                            class="rounded-full p-0.5 transition"
-                            :class="avatar === '{{ $option->key }}' ? 'ring-2 ring-offset-2 ring-{{ $option->color }}-500' : ''"
+                            class="rounded-full p-0.5 transition active:scale-90"
+                            :class="avatar === '{{ $option->key }}' ? 'scale-110 ring-2 ring-offset-2 ring-{{ $option->color }}-500' : ''"
                         >
                             <x-avatar-bubble :avatar="$option->icon" :color="$option->color" size="md" />
                         </button>

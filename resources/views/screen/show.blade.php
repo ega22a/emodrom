@@ -20,7 +20,7 @@
                 <button
                     type="button"
                     @click="toggleSound()"
-                    class="flex size-11 items-center justify-center rounded-full bg-white text-stone-500 shadow-sm transition hover:text-stone-700"
+                    class="flex size-11 items-center justify-center rounded-full bg-white text-stone-500 shadow-sm transition hover:text-stone-700 active:scale-90"
                     :class="soundEnabled ? 'text-amber-600' : ''"
                     :aria-label="soundEnabled ? 'Выключить звук' : 'Включить звук'"
                 >
@@ -35,7 +35,7 @@
 
         <main class="mt-10 flex flex-1 flex-col items-center justify-center">
             <template x-if="screen === 'closed'">
-                <div class="text-center">
+                <div class="animate-pop-in text-center">
                     <x-icon name="party-popper" class="mx-auto size-20 text-stone-400" />
                     <h2 class="mt-6 text-4xl font-bold text-stone-900">Игра завершена</h2>
                     <p class="mt-2 text-lg text-stone-500">Спасибо за игру!</p>
@@ -43,7 +43,7 @@
             </template>
 
             <template x-if="screen === 'idle'">
-                <div class="grid w-full max-w-4xl grid-cols-1 items-center gap-12 lg:grid-cols-[320px_1fr]">
+                <div class="grid w-full max-w-4xl animate-pop-in grid-cols-1 items-center gap-12 lg:grid-cols-[320px_1fr]">
                     <div class="rounded-3xl bg-white p-8 text-center shadow-sm">
                         <img src="{{ route('lobbies.qr', $lobby) }}" alt="QR-код лобби" class="mx-auto size-56">
                         <p class="mt-4 text-sm text-stone-500">Отсканируйте камерой телефона, чтобы присоединиться</p>
@@ -69,7 +69,7 @@
             </template>
 
             <template x-if="screen === 'voting'">
-                <div class="w-full max-w-2xl text-center">
+                <div class="w-full max-w-2xl animate-pop-in text-center">
                     <div class="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 shadow-sm">
                         <div class="inline-flex size-8 items-center justify-center rounded-full text-white" :class="'bg-' + round.reader.avatarColor + '-500'">
                             <svg class="size-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use :href="'#icon-' + round.reader.avatar"></use></svg>

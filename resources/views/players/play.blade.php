@@ -18,7 +18,7 @@
                     type="button"
                     @click="buyEmotion"
                     :disabled="buying || player.sparksBalance < 3"
-                    class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-700 disabled:opacity-40"
+                    class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-700 transition active:scale-90 disabled:opacity-40 disabled:active:scale-100"
                 >
                     <x-icon name="sparkles" class="size-4" />
                     <span x-text="player.sparksBalance"></span>
@@ -29,7 +29,12 @@
 
         <div
             x-show="toast"
-            x-transition
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-90 -translate-y-1"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100"
+            x-transition:leave-end="opacity-0"
             x-cloak
             class="mt-4 flex items-center gap-2 rounded-xl bg-emerald-100 px-4 py-3 text-emerald-800"
         >
@@ -39,7 +44,7 @@
 
         <main class="flex flex-1 flex-col items-center justify-center py-10 text-center">
             <template x-if="screen === 'closed'">
-                <div>
+                <div class="animate-pop-in">
                     <svg class="mx-auto size-16 text-stone-400" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-party-popper"></use></svg>
                     <h1 class="mt-4 text-2xl font-bold text-stone-900">Игра завершена</h1>
                     <p class="mt-2 text-stone-500">Спасибо за участие! До встречи в следующей игре.</p>
@@ -47,7 +52,7 @@
             </template>
 
             <template x-if="screen === 'interrogated'">
-                <div>
+                <div class="animate-pop-in">
                     <svg class="mx-auto size-16 animate-pulse text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-help-circle"></use></svg>
                     <h1 class="mt-4 text-2xl font-bold text-stone-900">Вас вызвал ведущий</h1>
                     <p class="mt-2 text-stone-500">Объясните вслух, почему вы выбрали именно эту эмоцию.</p>
@@ -55,7 +60,7 @@
             </template>
 
             <template x-if="screen === 'waiting'">
-                <div>
+                <div class="animate-pop-in">
                     <svg class="mx-auto size-16 animate-pulse text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bug"></use></svg>
                     <h1 class="mt-4 text-2xl font-bold text-stone-900">Ждём начала раунда</h1>
                     <p class="mt-2 text-stone-500">Ведущий скоро запустит раунд.</p>
@@ -63,7 +68,7 @@
             </template>
 
             <template x-if="screen === 'reading-done'">
-                <div>
+                <div class="animate-pop-in">
                     <svg class="mx-auto size-16 text-emerald-500" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-smile"></use></svg>
                     <h1 class="mt-4 text-2xl font-bold text-stone-900">Вы выбрали эмоцию</h1>
                     <p class="mt-2 text-stone-500">Прочитайте ситуацию вслух остальным и ждите их ответов.</p>
@@ -71,7 +76,7 @@
             </template>
 
             <template x-if="screen === 'voted'">
-                <div>
+                <div class="animate-pop-in">
                     <svg class="mx-auto size-16 text-emerald-500" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-smile"></use></svg>
                     <h1 class="mt-4 text-2xl font-bold text-stone-900">Ответ принят!</h1>
                     <p class="mt-2 text-stone-500">Ждём, пока ответят остальные игроки.</p>
@@ -79,7 +84,7 @@
             </template>
 
             <template x-if="screen === 'reading'">
-                <div class="w-full text-left">
+                <div class="w-full animate-pop-in text-left">
                     <h1 class="text-center text-xl font-bold text-stone-900">Вы читаете эту карточку</h1>
                     <p class="mt-2 text-center text-stone-700" x-text="round.question.situation"></p>
                     <p class="mt-2 text-center text-sm text-stone-500">Прочитайте вслух, затем выберите эмоцию, которую почувствовали бы вы на месте героя</p>
@@ -90,7 +95,7 @@
                                 type="button"
                                 @click="submitReaderEmotion(emotion)"
                                 :disabled="submitting"
-                                class="flex flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-white shadow-sm transition active:scale-95"
+                                class="flex animate-drop-in flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-white shadow-sm transition active:scale-95"
                                 :class="'bg-' + emotion.color + '-500'"
                             >
                                 <svg class="size-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -104,7 +109,7 @@
             </template>
 
             <template x-if="screen === 'voting'">
-                <div class="w-full text-left">
+                <div class="w-full animate-pop-in text-left">
                     <h1 class="text-center text-xl font-bold text-stone-900">Что вы сейчас чувствуете?</h1>
                     <p class="mt-1 text-center text-sm text-stone-500">Выберите эмоцию, которая ближе всего к тому, что почувствовали бы именно вы — это не игра в угадайку</p>
 
@@ -114,7 +119,7 @@
                                 type="button"
                                 @click="vote(emotion)"
                                 :disabled="voting"
-                                class="flex flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-white shadow-sm transition active:scale-95"
+                                class="flex animate-drop-in flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-white shadow-sm transition active:scale-95"
                                 :class="'bg-' + emotion.color + '-500'"
                             >
                                 <svg class="size-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
