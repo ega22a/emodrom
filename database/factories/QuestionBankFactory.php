@@ -27,7 +27,7 @@ class QuestionBankFactory extends Factory
     {
         return $this->afterCreating(function (QuestionBank $bank): void {
             if ($bank->questions()->doesntExist()) {
-                Question::factory()->count(5)->for($bank)->create();
+                Question::factory()->count(5)->for($bank, 'bank')->create();
             }
         });
     }

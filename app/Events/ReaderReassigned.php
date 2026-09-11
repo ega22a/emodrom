@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use App\Data\PlayerData;
-use App\Data\QuestionData;
 use App\Models\GameRound;
 use App\Models\Lobby;
 use Illuminate\Broadcasting\Channel;
@@ -11,7 +10,7 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 
-class RoundStarted implements ShouldBroadcastNow
+class ReaderReassigned implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets;
 
@@ -19,15 +18,12 @@ class RoundStarted implements ShouldBroadcastNow
 
     public PlayerData $reader;
 
-    public QuestionData $question;
-
     public function __construct(private Lobby $lobby, GameRound $round)
     {
-        $round->loadMissing(['reader', 'question']);
+        $round->loadMissing('reader');
 
         $this->roundNumber = $round->number;
         $this->reader = PlayerData::fromModel($round->reader);
-        $this->question = QuestionData::fromModel($round->question);
     }
 
     /**
@@ -40,7 +36,7 @@ class RoundStarted implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'round.started';
+        return 'reader.reassigned';
     }
 
     /**
@@ -51,7 +47,6 @@ class RoundStarted implements ShouldBroadcastNow
         return [
             'roundNumber' => $this->roundNumber,
             'reader' => $this->reader->toArray(),
-            'question' => $this->question->toArray(),
         ];
     }
 }

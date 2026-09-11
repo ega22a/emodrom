@@ -5,6 +5,7 @@ namespace App\Actions\Lobby;
 use App\Enums\LobbyStatus;
 use App\Models\Lobby;
 use App\Support\LobbyCodeGenerator;
+use Illuminate\Support\Str;
 
 class CreateLobbyAction
 {
@@ -15,6 +16,7 @@ class CreateLobbyAction
         return Lobby::create([
             'code' => $this->codes->unique(),
             'status' => LobbyStatus::Open,
+            'host_token' => Str::random(40),
         ]);
     }
 }
