@@ -88,6 +88,21 @@ class GameException extends Exception
         return new self('Для этого раунда нужно выбрать другое количество эмоций.');
     }
 
+    public static function cannotRemoveCurrentReader(): self
+    {
+        return new self('Нельзя удалить чтеца текущего раунда — сначала отмените или покажите результаты раунда.');
+    }
+
+    public static function playerAlreadyRemoved(): self
+    {
+        return new self('Этот игрок уже покинул лобби.');
+    }
+
+    public static function playerNotInLobby(): self
+    {
+        return new self('Этот игрок не в этом лобби.');
+    }
+
     public function render(Request $request): JsonResponse
     {
         return response()->json([

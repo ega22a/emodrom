@@ -88,6 +88,7 @@ class PlayerController extends Controller
 
         return [
             'lobbyStatus' => $lobby->status->value,
+            'removed' => ! $player->isActive(),
             'player' => PlayerResource::make($player)->resolve(),
             'round' => $activeRound
                 ? GameRoundResource::make($activeRound->load(['reader', 'question']))->resolve()

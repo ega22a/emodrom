@@ -19,7 +19,7 @@ final class LobbyStateBuilder
      */
     public static function build(Lobby $lobby): array
     {
-        $lobby->loadMissing('players');
+        $lobby->loadMissing('activePlayers');
         $round = $lobby->currentRound()?->load(['reader', 'question']);
         $revealedRound = $round === null
             ? $lobby->rounds()->where('status', RoundStatus::Revealed)->latest('number')->first()
@@ -28,6 +28,7 @@ final class LobbyStateBuilder
         return [
             'lobby' => LobbyResource::make($lobby)->resolve(),
             'round' => $round ? GameRoundResource::make($round)->resolve() : null,
+            'readerHasChosen' => $round?->readerHasChosen() ?? false,
             'lastResult' => $revealedRound ? RevealResultBuilder::build($revealedRound)->toArray() : null,
             'interrogation' => $revealedRound && $lobby->interrogation_enabled
                 ? InterrogationStateBuilder::build($revealedRound)->toArray()

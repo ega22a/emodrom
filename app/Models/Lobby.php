@@ -51,6 +51,19 @@ class Lobby extends Model
     }
 
     /**
+     * The current roster — everyone who hasn't been removed by the host.
+     * Historical rounds still reference removed players directly by id, so
+     * this is only for "who's here right now" views (rosters, totals,
+     * reader rotation), never for round history.
+     *
+     * @return HasMany<Player, $this>
+     */
+    public function activePlayers(): HasMany
+    {
+        return $this->players()->whereNull('removed_at');
+    }
+
+    /**
      * @return HasMany<GameRound, $this>
      */
     public function rounds(): HasMany

@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Actions\Lobby\CloseLobbyAction;
 use App\Actions\Lobby\ConfigureSessionAction;
 use App\Actions\Lobby\CreateLobbyAction;
+use App\Actions\Lobby\RemovePlayerAction;
 use App\Http\Controllers\Concerns\RequiresHost;
 use App\Http\Requests\ConfigureSessionRequest;
 use App\Models\Lobby;
+use App\Models\Player;
 use App\Models\QuestionBank;
 use App\Services\HostSessionService;
 use App\Support\LobbyStateBuilder;
@@ -76,6 +78,15 @@ class HostController extends Controller
         $this->authorizeHost($lobby, $sessions);
 
         $action->execute($lobby);
+
+        return response()->noContent();
+    }
+
+    public function removePlayer(Lobby $lobby, Player $player, HostSessionService $sessions, RemovePlayerAction $action): Response
+    {
+        $this->authorizeHost($lobby, $sessions);
+
+        $action->execute($lobby, $player);
 
         return response()->noContent();
     }

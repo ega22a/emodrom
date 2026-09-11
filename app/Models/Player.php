@@ -20,6 +20,7 @@ class Player extends Model
         'avatar',
         'sparks_balance',
         'joined_at',
+        'removed_at',
     ];
 
     protected function casts(): array
@@ -27,6 +28,7 @@ class Player extends Model
         return [
             'sparks_balance' => 'integer',
             'joined_at' => 'datetime',
+            'removed_at' => 'datetime',
         ];
     }
 
@@ -85,5 +87,10 @@ class Player extends Model
     public function canAfford(int $sparks): bool
     {
         return $this->sparks_balance >= $sparks;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->removed_at === null;
     }
 }

@@ -14,7 +14,7 @@ final class ReaderRotation
 {
     public static function next(Lobby $lobby): Player
     {
-        $players = $lobby->players()->orderBy('joined_at')->orderBy('id')->get();
+        $players = $lobby->activePlayers()->orderBy('joined_at')->orderBy('id')->get();
 
         if ($players->isEmpty()) {
             throw new \RuntimeException('Cannot pick a reader for a lobby with no players.');

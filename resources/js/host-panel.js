@@ -5,7 +5,7 @@ document.addEventListener('alpine:init', () => {
         lastResult: initialState.lastResult,
         interrogation: initialState.interrogation,
         voteProgress: { votedCount: 0, totalVoters: Math.max(initialState.lobby.players.length - 1, 0) },
-        readerHasChosen: false,
+        readerHasChosen: initialState.readerHasChosen,
         working: false,
         mirrorEnabled: false,
         cocktailEnabled: false,
@@ -45,6 +45,9 @@ document.addEventListener('alpine:init', () => {
                     if (!this.lobby.players.some((p) => p.id === event.player.id)) {
                         this.lobby.players.push(event.player);
                     }
+                })
+                .listen('.player.removed', (event) => {
+                    this.lobby.players = this.lobby.players.filter((p) => p.id !== event.playerId);
                 })
                 .listen('.round.started', (event) => {
                     this.round = {
@@ -176,6 +179,19 @@ document.addEventListener('alpine:init', () => {
         async skipInterrogation() {
             try {
                 await window.api(`/host/${lobbyCode}/interrogation/skip`, { method: 'POST' });
+            } catch (error) {
+                alert(error.message);
+            }
+        },
+
+        async removePlayer(player) {
+            if (!confirm(`Убрать игрока «${player.name}» из лобби?`)) {
+                return;
+            }
+
+            try {
+                await window.api(`/host/${lobbyCode}/players/${player.id}/remove`, { method: 'POST' });
+                this.lobby.players = this.lobby.players.filter((p) => p.id !== player.id);
             } catch (error) {
                 alert(error.message);
             }

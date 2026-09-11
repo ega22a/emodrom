@@ -10,6 +10,7 @@ document.addEventListener('alpine:init', () => {
         revealedGroupCount: initialState.lastResult ? initialState.lastResult.groups.length : 0,
         revealAnimationDone: Boolean(initialState.lastResult),
         soundEnabled: JSON.parse(localStorage.getItem('emodrom.soundEnabled') ?? 'true'),
+        soundUnlocked: false,
 
         get screen() {
             if (this.lobby.status === 'closed') {
@@ -49,7 +50,10 @@ document.addEventListener('alpine:init', () => {
 
         init() {
             ['click', 'keydown', 'touchstart'].forEach((event) => {
-                document.addEventListener(event, () => this.syncMusic(), { once: true });
+                document.addEventListener(event, () => {
+                    this.soundUnlocked = true;
+                    this.syncMusic();
+                }, { once: true });
             });
 
             window.Echo.channel(`lobby.${lobbyCode}`)
@@ -58,6 +62,9 @@ document.addEventListener('alpine:init', () => {
                         this.lobby.players.push(event.player);
                         this.playSfx('player_joined');
                     }
+                })
+                .listen('.player.removed', (event) => {
+                    this.lobby.players = this.lobby.players.filter((p) => p.id !== event.playerId);
                 })
                 .listen('.round.started', (event) => {
                     this.round = {

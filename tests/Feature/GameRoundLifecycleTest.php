@@ -6,6 +6,7 @@ use App\Actions\Lobby\CloseLobbyAction;
 use App\Actions\Lobby\ConfigureSessionAction;
 use App\Actions\Lobby\CreateLobbyAction;
 use App\Actions\Lobby\JoinLobbyAction;
+use App\Actions\Lobby\RemovePlayerAction;
 use App\Actions\Player\PurchaseEmotionAction;
 use App\Actions\Round\AwardInterrogationPointsAction;
 use App\Actions\Round\CancelRoundAction;
@@ -369,6 +370,49 @@ class GameRoundLifecycleTest extends TestCase
         $this->assertSame(0, $lobby->fresh()->rounds()->count());
         $this->assertSame(0, $alice->fresh()->sparks_balance);
         $this->assertSame(6, $alice->fresh()->emotions()->count());
+    }
+
+    public function test_removing_a_player_excludes_them_from_the_active_roster_and_reader_rotation(): void
+    {
+        $lobby = $this->configuredLobby();
+        $join = app(JoinLobbyAction::class);
+        $alice = $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $bob = $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+        $carol = $join->execute($lobby, new JoinLobbyData('Carol', 'fish'));
+
+        app(RemovePlayerAction::class)->execute($lobby, $bob);
+
+        $this->assertNotNull($bob->fresh()->removed_at);
+        $this->assertSame(2, $lobby->fresh()->activePlayers()->count());
+        $this->assertSame(3, $lobby->fresh()->players()->count());
+
+        $round = app(StartRoundAction::class)->execute($lobby->fresh());
+        $this->assertContains($round->reader_player_id, [$alice->id, $carol->id]);
+    }
+
+    public function test_removing_the_current_rounds_reader_is_blocked(): void
+    {
+        $lobby = $this->configuredLobby();
+        $join = app(JoinLobbyAction::class);
+        $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+        $round = app(StartRoundAction::class)->execute($lobby);
+
+        $this->expectException(GameException::class);
+        app(RemovePlayerAction::class)->execute($lobby, $round->reader);
+    }
+
+    public function test_removing_an_already_removed_player_fails(): void
+    {
+        $lobby = $this->configuredLobby();
+        $join = app(JoinLobbyAction::class);
+        $alice = $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+
+        app(RemovePlayerAction::class)->execute($lobby, $alice);
+
+        $this->expectException(GameException::class);
+        app(RemovePlayerAction::class)->execute($lobby, $alice->fresh());
     }
 
     public function test_closing_a_lobby_blocks_new_joins(): void
