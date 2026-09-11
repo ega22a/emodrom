@@ -12,7 +12,19 @@
                 </div>
                 <span class="font-semibold text-stone-800" x-text="player.name"></span>
             </div>
-            <span class="rounded-full bg-stone-200 px-2.5 py-1 text-xs font-semibold tracking-wide text-stone-500">{{ $lobby->code }}</span>
+
+            <div class="flex items-center gap-2">
+                <button
+                    type="button"
+                    @click="buyEmotion"
+                    :disabled="buying || player.sparksBalance < 3"
+                    class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1.5 text-sm font-semibold text-amber-700 disabled:opacity-40"
+                >
+                    <x-icon name="sparkles" class="size-4" />
+                    <span x-text="player.sparksBalance"></span>
+                    <span class="text-xs font-normal">· купить за 3</span>
+                </button>
+            </div>
         </header>
 
         <div
@@ -34,11 +46,27 @@
                 </div>
             </template>
 
+            <template x-if="screen === 'interrogated'">
+                <div>
+                    <svg class="mx-auto size-16 animate-pulse text-red-500" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-help-circle"></use></svg>
+                    <h1 class="mt-4 text-2xl font-bold text-stone-900">Вас вызвал ведущий</h1>
+                    <p class="mt-2 text-stone-500">Объясните вслух, почему вы выбрали именно эту эмоцию.</p>
+                </div>
+            </template>
+
             <template x-if="screen === 'waiting'">
                 <div>
                     <svg class="mx-auto size-16 animate-pulse text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bug"></use></svg>
                     <h1 class="mt-4 text-2xl font-bold text-stone-900">Ждём начала раунда</h1>
-                    <p class="mt-2 text-stone-500">Ведущий скоро запустит раунд — приготовьтесь выбрать эмоцию.</p>
+                    <p class="mt-2 text-stone-500">Ведущий скоро запустит раунд.</p>
+                </div>
+            </template>
+
+            <template x-if="screen === 'reading-done'">
+                <div>
+                    <svg class="mx-auto size-16 text-emerald-500" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-smile"></use></svg>
+                    <h1 class="mt-4 text-2xl font-bold text-stone-900">Вы выбрали эмоцию</h1>
+                    <p class="mt-2 text-stone-500">Прочитайте ситуацию вслух остальным и ждите их ответов.</p>
                 </div>
             </template>
 
@@ -50,10 +78,35 @@
                 </div>
             </template>
 
+            <template x-if="screen === 'reading'">
+                <div class="w-full text-left">
+                    <h1 class="text-center text-xl font-bold text-stone-900">Вы читаете эту карточку</h1>
+                    <p class="mt-2 text-center text-stone-700" x-text="round.question.situation"></p>
+                    <p class="mt-2 text-center text-sm text-stone-500">Прочитайте вслух, затем выберите эмоцию, которую почувствовали бы вы на месте героя</p>
+
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <template x-for="emotion in availableEmotions" :key="emotion.id">
+                            <button
+                                type="button"
+                                @click="submitReaderEmotion(emotion)"
+                                :disabled="submitting"
+                                class="flex flex-col items-center justify-center gap-2 rounded-2xl px-3 py-5 text-white shadow-sm transition active:scale-95"
+                                :class="'bg-' + emotion.color + '-500'"
+                            >
+                                <svg class="size-8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <use :href="'#icon-' + emotion.icon"></use>
+                                </svg>
+                                <span class="text-sm font-semibold" x-text="emotion.label"></span>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
             <template x-if="screen === 'voting'">
                 <div class="w-full text-left">
                     <h1 class="text-center text-xl font-bold text-stone-900">Что вы сейчас чувствуете?</h1>
-                    <p class="mt-1 text-center text-sm text-stone-500">Выберите эмоцию, которая ближе всего к ситуации</p>
+                    <p class="mt-1 text-center text-sm text-stone-500">Выберите эмоцию, которая ближе всего к тому, что почувствовали бы именно вы — это не игра в угадайку</p>
 
                     <div class="mt-6 grid grid-cols-2 gap-3">
                         <template x-for="emotion in availableEmotions" :key="emotion.id">

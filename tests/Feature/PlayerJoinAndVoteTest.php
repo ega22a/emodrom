@@ -2,9 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Actions\Lobby\ConfigureSessionAction;
 use App\Actions\Round\StartRoundAction;
+use App\Data\ConfigureSessionData;
+use App\Enums\EmotionSet;
 use App\Models\Emotion;
+use App\Models\GameRound;
 use App\Models\Lobby;
+use App\Models\Player;
+use App\Models\Question;
+use App\Models\QuestionBank;
 use Database\Seeders\EmotionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Testing\TestResponse;
@@ -60,45 +67,110 @@ class PlayerJoinAndVoteTest extends TestCase
             ->assertRedirect(route('lobbies.join', $lobby));
     }
 
-    public function test_a_joined_player_can_reach_the_play_screen_and_vote(): void
+    public function test_the_second_joined_player_can_vote_while_the_first_reads(): void
     {
-        $lobby = Lobby::factory()->create();
-        app(StartRoundAction::class)->execute($lobby);
-        $joy = Emotion::where('key', 'joy')->firstOrFail();
+        [$lobby, $round, $reader] = $this->configuredLobbyWithActiveRound();
+        $fear = Emotion::where('key', 'fear')->firstOrFail();
 
-        $joinResponse = $this->post(route('lobbies.join.store', $lobby), [
-            'name' => 'Аня',
-            'avatar' => 'cat',
+        $bobJoin = $this->post(route('lobbies.join.store', $lobby), [
+            'name' => 'Bob',
+            'avatar' => 'dog',
         ]);
+        $bob = $this->asJoinedPlayer($bobJoin, $lobby);
 
-        $browser = $this->asJoinedPlayer($joinResponse, $lobby);
+        $bob->get(route('lobbies.play', $lobby))->assertOk();
 
-        $browser->get(route('lobbies.play', $lobby))->assertOk();
-
-        $voteResponse = $browser->postJson(route('lobbies.vote', $lobby), [
-            'emotion_id' => $joy->id,
-        ]);
+        $voteResponse = $bob->postJson(route('lobbies.vote', $lobby), ['emotion_id' => $fear->id]);
 
         $voteResponse->assertCreated();
-        $voteResponse->assertJson(['votedEmotionId' => $joy->id]);
-        $this->assertSame(1, $lobby->players()->sole()->votes()->count());
+        $voteResponse->assertJson(['votedEmotionId' => $fear->id]);
+        $this->assertSame(1, $round->votes()->count());
+    }
+
+    public function test_the_reader_cannot_vote_over_http(): void
+    {
+        [$lobby, , $reader] = $this->configuredLobbyWithActiveRound();
+        $joy = Emotion::where('key', 'joy')->firstOrFail();
+
+        $readerBrowser = $this->withCredentials()->withCookie("emodrom_player_{$lobby->code}", (string) $reader->id);
+
+        $readerBrowser->postJson(route('lobbies.vote', $lobby), ['emotion_id' => $joy->id])
+            ->assertStatus(422);
+    }
+
+    public function test_the_reader_can_submit_their_emotion_over_http(): void
+    {
+        [$lobby, $round, $reader] = $this->configuredLobbyWithActiveRound();
+        $joy = Emotion::where('key', 'joy')->firstOrFail();
+
+        $readerBrowser = $this->withCredentials()->withCookie("emodrom_player_{$lobby->code}", (string) $reader->id);
+
+        $readerBrowser->postJson(route('lobbies.reader-emotion', $lobby), ['emotion_id' => $joy->id])
+            ->assertCreated()
+            ->assertJson(['chosenEmotionId' => $joy->id]);
+
+        $this->assertSame($joy->id, $round->fresh()->reader_emotion_id);
     }
 
     public function test_voting_for_a_locked_emotion_is_rejected(): void
     {
-        $lobby = Lobby::factory()->create();
-        app(StartRoundAction::class)->execute($lobby);
+        [$lobby] = $this->configuredLobbyWithActiveRound();
         $anxiety = Emotion::where('key', 'anxiety')->firstOrFail();
 
+        $bobJoin = $this->post(route('lobbies.join.store', $lobby), [
+            'name' => 'Bob',
+            'avatar' => 'dog',
+        ]);
+        $bob = $this->asJoinedPlayer($bobJoin, $lobby);
+
+        $bob->postJson(route('lobbies.vote', $lobby), ['emotion_id' => $anxiety->id])
+            ->assertStatus(422);
+    }
+
+    public function test_a_player_can_buy_an_emotion_over_http(): void
+    {
+        $lobby = Lobby::factory()->create();
         $joinResponse = $this->post(route('lobbies.join.store', $lobby), [
             'name' => 'Аня',
             'avatar' => 'cat',
         ]);
-
+        $player = Player::sole();
+        $player->update(['sparks_balance' => 3]);
         $browser = $this->asJoinedPlayer($joinResponse, $lobby);
 
-        $browser->postJson(route('lobbies.vote', $lobby), ['emotion_id' => $anxiety->id])
-            ->assertStatus(422);
+        $response = $browser->postJson(route('lobbies.purchase', $lobby));
+
+        $response->assertCreated();
+        $this->assertSame(0, $player->fresh()->sparks_balance);
+    }
+
+    /**
+     * @return array{0: Lobby, 1: GameRound, 2: Player}
+     */
+    private function configuredLobbyWithActiveRound(): array
+    {
+        $lobby = Lobby::factory()->create();
+
+        $readerJoin = $this->post(route('lobbies.join.store', $lobby), [
+            'name' => 'Reader',
+            'avatar' => 'cat',
+        ]);
+        $reader = Player::sole();
+        $this->asJoinedPlayer($readerJoin, $lobby);
+
+        $bank = QuestionBank::factory()->create();
+        Question::factory()->for($bank, 'bank')->create();
+
+        app(ConfigureSessionAction::class)->execute($lobby, new ConfigureSessionData(
+            questionBankId: $bank->id,
+            roundLimit: null,
+            interrogationEnabled: false,
+            emotionSet: EmotionSet::Classic,
+        ));
+
+        $round = app(StartRoundAction::class)->execute($lobby->fresh());
+
+        return [$lobby->fresh(), $round, $reader];
     }
 
     /**

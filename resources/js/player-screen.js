@@ -3,10 +3,15 @@ document.addEventListener('alpine:init', () => {
         lobbyStatus: initialState.lobbyStatus,
         player: initialState.player,
         round: initialState.round,
-        availableEmotions: initialState.availableEmotions,
+        isReader: initialState.isReader,
+        readerHasChosen: initialState.readerHasChosen,
         hasVoted: initialState.hasVoted,
         votedEmotionId: initialState.votedEmotionId,
+        availableEmotions: initialState.availableEmotions,
+        isBeingInterrogated: initialState.isBeingInterrogated,
         voting: false,
+        submitting: false,
+        buying: false,
         toast: null,
 
         get screen() {
@@ -14,8 +19,16 @@ document.addEventListener('alpine:init', () => {
                 return 'closed';
             }
 
-            if (!this.round || this.round.status !== 'active') {
+            if (this.isBeingInterrogated) {
+                return 'interrogated';
+            }
+
+            if (!this.round) {
                 return 'waiting';
+            }
+
+            if (this.isReader) {
+                return this.readerHasChosen ? 'reading-done' : 'reading';
             }
 
             return this.hasVoted ? 'voted' : 'voting';
@@ -27,10 +40,20 @@ document.addEventListener('alpine:init', () => {
                     this.toast = null;
                     this.refresh();
                 })
-                .listen('.round.ended', (event) => {
+                .listen('.reader.reassigned', () => {
+                    this.refresh();
+                })
+                .listen('.round.revealed', (event) => {
                     if (event.result.rewardedPlayerIds.includes(this.player.id)) {
-                        this.toast = 'Вы открыли новую эмоцию! Она появится в следующем раунде.';
+                        this.toast = `Вы заработали ${event.result.rewardSparks} искр!`;
                     }
+
+                    this.refresh();
+                })
+                .listen('.interrogation.updated', (event) => {
+                    this.isBeingInterrogated = event.state.entries.some(
+                        (entry) => entry.isCurrent && entry.player.id === this.player.id
+                    );
                 })
                 .listen('.lobby.closed', () => {
                     this.lobbyStatus = 'closed';
@@ -41,10 +64,14 @@ document.addEventListener('alpine:init', () => {
             const state = await window.api(`/play/${lobbyCode}/state`);
 
             this.lobbyStatus = state.lobbyStatus;
+            this.player = state.player;
             this.round = state.round;
-            this.availableEmotions = state.availableEmotions;
+            this.isReader = state.isReader;
+            this.readerHasChosen = state.readerHasChosen;
             this.hasVoted = state.hasVoted;
             this.votedEmotionId = state.votedEmotionId;
+            this.availableEmotions = state.availableEmotions;
+            this.isBeingInterrogated = state.isBeingInterrogated;
         },
 
         async vote(emotion) {
@@ -66,6 +93,47 @@ document.addEventListener('alpine:init', () => {
                 alert(error.message);
             } finally {
                 this.voting = false;
+            }
+        },
+
+        async submitReaderEmotion(emotion) {
+            if (this.submitting || this.readerHasChosen) {
+                return;
+            }
+
+            this.submitting = true;
+
+            try {
+                await window.api(`/play/${lobbyCode}/reader-emotion`, {
+                    method: 'POST',
+                    body: JSON.stringify({ emotion_id: emotion.id }),
+                });
+
+                this.readerHasChosen = true;
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                this.submitting = false;
+            }
+        },
+
+        async buyEmotion() {
+            if (this.buying || this.player.sparksBalance < 3) {
+                return;
+            }
+
+            this.buying = true;
+
+            try {
+                const result = await window.api(`/play/${lobbyCode}/purchase`, { method: 'POST' });
+
+                this.player.sparksBalance = result.sparksBalance;
+                this.availableEmotions.push(result.emotion);
+                this.toast = `Вы открыли новую эмоцию: ${result.emotion.label}!`;
+            } catch (error) {
+                alert(error.message);
+            } finally {
+                this.buying = false;
             }
         },
     }));

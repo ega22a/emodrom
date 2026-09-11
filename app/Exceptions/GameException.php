@@ -83,11 +83,6 @@ class GameException extends Exception
         return new self('Сейчас допрашивается другой игрок.');
     }
 
-    public static function notTheHost(): self
-    {
-        return new self('Только ведущий может это сделать.');
-    }
-
     public function render(Request $request): JsonResponse
     {
         return response()->json([

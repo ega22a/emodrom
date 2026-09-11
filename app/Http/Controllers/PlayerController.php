@@ -77,20 +77,31 @@ class PlayerController extends Controller
      */
     private function stateFor(Lobby $lobby, Player $player): array
     {
-        $round = $lobby->currentRound();
-        $hasVoted = $round && $player->hasVotedIn($round);
+        $activeRound = $lobby->currentRound();
+        $latestRound = $activeRound ?? $lobby->rounds()->latest('number')->first();
+
+        $isReader = $latestRound !== null && $latestRound->reader_player_id === $player->id;
+        $hasVoted = $activeRound && $player->hasVotedIn($activeRound);
+        $isBeingInterrogated = $latestRound !== null
+            && $latestRound->isRevealed()
+            && $latestRound->current_interrogation_player_id === $player->id;
 
         return [
             'lobbyStatus' => $lobby->status->value,
             'player' => PlayerResource::make($player)->resolve(),
-            'round' => $round ? GameRoundResource::make($round)->resolve() : null,
+            'round' => $activeRound
+                ? GameRoundResource::make($activeRound->load(['reader', 'question']))->resolve()
+                : null,
+            'isReader' => $isReader,
+            'readerHasChosen' => $activeRound?->readerHasChosen() ?? false,
+            'hasVoted' => $hasVoted,
+            'votedEmotionId' => $hasVoted
+                ? $player->votes()->where('game_round_id', $activeRound->id)->value('emotion_id')
+                : null,
             'availableEmotions' => EmotionResource::collection(
                 $player->emotions()->orderBy('sort_order')->get()
             )->resolve(),
-            'hasVoted' => $hasVoted,
-            'votedEmotionId' => $hasVoted
-                ? $player->votes()->where('game_round_id', $round->id)->value('emotion_id')
-                : null,
+            'isBeingInterrogated' => $isBeingInterrogated,
         ];
     }
 }
