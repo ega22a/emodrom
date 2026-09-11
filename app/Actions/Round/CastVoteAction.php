@@ -12,7 +12,7 @@ use App\Models\Vote;
 
 class CastVoteAction
 {
-    public function execute(GameRound $round, Player $player, Emotion $emotion): Vote
+    public function execute(GameRound $round, Player $player, Emotion $emotion, ?Emotion $secondaryEmotion = null): Vote
     {
         if (! $round->isVoting()) {
             throw GameException::roundNotActive();
@@ -22,7 +22,15 @@ class CastVoteAction
             throw GameException::readerCannotVote();
         }
 
+        if ($round->cocktail_enabled !== ($secondaryEmotion !== null)) {
+            throw GameException::invalidVoteShape();
+        }
+
         if (! $player->hasUnlocked($emotion)) {
+            throw GameException::emotionNotUnlocked();
+        }
+
+        if ($secondaryEmotion !== null && ! $player->hasUnlocked($secondaryEmotion)) {
             throw GameException::emotionNotUnlocked();
         }
 
@@ -33,6 +41,7 @@ class CastVoteAction
         $vote = $round->votes()->create([
             'player_id' => $player->id,
             'emotion_id' => $emotion->id,
+            'secondary_emotion_id' => $secondaryEmotion?->id,
         ]);
 
         $totalVoters = $round->lobby->players()->count() - 1;

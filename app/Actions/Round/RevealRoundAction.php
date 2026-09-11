@@ -36,7 +36,7 @@ class RevealRoundAction
         DB::transaction(function () use ($round): void {
             $votes = $round->votes()->with('player')->get();
 
-            $matchedVotes = $votes->where('emotion_id', $round->reader_emotion_id);
+            $matchedVotes = $votes->filter(fn (Vote $vote) => $vote->matches($round->reader_emotion_id));
 
             if ($matchedVotes->isNotEmpty()) {
                 $this->awardSparks($matchedVotes->pluck('player')->unique('id'), $round->question->reward_sparks);
@@ -79,7 +79,7 @@ class RevealRoundAction
      */
     private function queueInterrogation(GameRound $round, $votes): ?int
     {
-        $nonMatching = $votes->where('emotion_id', '!=', $round->reader_emotion_id);
+        $nonMatching = $votes->reject(fn (Vote $vote) => $vote->matches($round->reader_emotion_id));
 
         if ($nonMatching->isEmpty()) {
             return null;

@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class StartRoundAction
 {
-    public function execute(Lobby $lobby): GameRound
+    public function execute(Lobby $lobby, bool $mirrorEnabled = false, bool $cocktailEnabled = false): GameRound
     {
         if (! $lobby->isOpen()) {
             throw GameException::lobbyClosed();
@@ -26,7 +26,7 @@ class StartRoundAction
             throw GameException::roundLimitReached();
         }
 
-        return DB::transaction(function () use ($lobby): GameRound {
+        return DB::transaction(function () use ($lobby, $mirrorEnabled, $cocktailEnabled): GameRound {
             $reader = ReaderRotation::next($lobby);
             $question = $lobby->questionBank->questions()->inRandomOrder()->firstOrFail();
 
@@ -35,6 +35,8 @@ class StartRoundAction
                 'status' => RoundStatus::Voting,
                 'question_id' => $question->id,
                 'reader_player_id' => $reader->id,
+                'mirror_enabled' => $mirrorEnabled,
+                'cocktail_enabled' => $cocktailEnabled,
                 'started_at' => now(),
             ]);
 

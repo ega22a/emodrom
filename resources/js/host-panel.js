@@ -7,6 +7,8 @@ document.addEventListener('alpine:init', () => {
         voteProgress: { votedCount: 0, totalVoters: Math.max(initialState.lobby.players.length - 1, 0) },
         readerHasChosen: false,
         working: false,
+        mirrorEnabled: false,
+        cocktailEnabled: false,
         scoredInterrogationIds: new Set(
             (initialState.interrogation?.entries ?? [])
                 .filter((entry) => entry.sparksAwarded !== null)
@@ -45,7 +47,14 @@ document.addEventListener('alpine:init', () => {
                     }
                 })
                 .listen('.round.started', (event) => {
-                    this.round = { number: event.roundNumber, status: 'voting', reader: event.reader, question: event.question };
+                    this.round = {
+                        number: event.roundNumber,
+                        status: 'voting',
+                        reader: event.reader,
+                        question: event.question,
+                        mirrorEnabled: event.mirrorEnabled,
+                        cocktailEnabled: event.cocktailEnabled,
+                    };
                     this.voteProgress = { votedCount: 0, totalVoters: Math.max(this.lobby.players.length - 1, 0) };
                     this.readerHasChosen = false;
                     this.lobby.roundsPlayed = event.roundNumber - 1;
@@ -101,7 +110,12 @@ document.addEventListener('alpine:init', () => {
             this.working = true;
 
             try {
-                await window.api(`/host/${lobbyCode}/round`, { method: 'POST' });
+                await window.api(`/host/${lobbyCode}/round`, {
+                    method: 'POST',
+                    body: JSON.stringify({ mirror: this.mirrorEnabled, cocktail: this.cocktailEnabled }),
+                });
+                this.mirrorEnabled = false;
+                this.cocktailEnabled = false;
             } catch (error) {
                 alert(error.message);
             } finally {

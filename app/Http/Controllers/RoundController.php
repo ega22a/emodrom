@@ -9,6 +9,7 @@ use App\Actions\Round\StartRoundAction;
 use App\Exceptions\GameException;
 use App\Http\Controllers\Concerns\RequiresHost;
 use App\Http\Requests\ReassignReaderRequest;
+use App\Http\Requests\StartRoundRequest;
 use App\Models\Lobby;
 use App\Models\Player;
 use App\Services\HostSessionService;
@@ -18,11 +19,11 @@ class RoundController extends Controller
 {
     use RequiresHost;
 
-    public function store(Lobby $lobby, HostSessionService $sessions, StartRoundAction $action): Response
+    public function store(StartRoundRequest $request, Lobby $lobby, HostSessionService $sessions, StartRoundAction $action): Response
     {
         $this->authorizeHost($lobby, $sessions);
 
-        $action->execute($lobby);
+        $action->execute($lobby, $request->boolean('mirror'), $request->boolean('cocktail'));
 
         return response()->noContent(201);
     }

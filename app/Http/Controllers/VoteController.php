@@ -31,9 +31,15 @@ class VoteController extends Controller
         }
 
         $emotion = Emotion::findOrFail($request->integer('emotion_id'));
+        $secondaryEmotion = $request->filled('secondary_emotion_id')
+            ? Emotion::findOrFail($request->integer('secondary_emotion_id'))
+            : null;
 
-        $action->execute($round, $player, $emotion);
+        $vote = $action->execute($round, $player, $emotion, $secondaryEmotion);
 
-        return response()->json(['votedEmotionId' => $emotion->id], 201);
+        return response()->json([
+            'votedEmotionId' => $vote->emotion_id,
+            'secondaryEmotionId' => $vote->secondary_emotion_id,
+        ], 201);
     }
 }

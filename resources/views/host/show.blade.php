@@ -67,6 +67,30 @@
                     <template x-if="lobby.players.length < 2">
                         <p class="mt-4 text-sm text-stone-400">Нужно минимум 2 игрока, чтобы начать раунд.</p>
                     </template>
+
+                    <template x-if="lobby.players.length >= 2">
+                        <div class="mt-6">
+                            <p class="mb-2 text-sm font-semibold text-stone-700">Модификаторы раунда</p>
+                            <div class="flex gap-2">
+                                <button
+                                    type="button"
+                                    @click="mirrorEnabled = !mirrorEnabled"
+                                    class="flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition active:scale-95"
+                                    :class="mirrorEnabled ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-stone-300 text-stone-600'"
+                                >
+                                    🪞 Зеркало
+                                </button>
+                                <button
+                                    type="button"
+                                    @click="cocktailEnabled = !cocktailEnabled"
+                                    class="flex-1 rounded-xl border px-3 py-2.5 text-sm font-semibold transition active:scale-95"
+                                    :class="cocktailEnabled ? 'border-amber-500 bg-amber-50 text-amber-700' : 'border-stone-300 text-stone-600'"
+                                >
+                                    🍹 Коктейль
+                                </button>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </template>
 
@@ -78,6 +102,9 @@
                                 <svg class="size-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use :href="'#icon-' + round.reader.avatar"></use></svg>
                             </div>
                             Чтец: <span x-text="round.reader.name"></span>
+
+                            <span x-show="round.mirrorEnabled" class="ml-auto rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-600">🪞 Зеркало</span>
+                            <span x-show="round.cocktailEnabled" class="rounded-full bg-stone-100 px-2 py-0.5 text-xs font-semibold text-stone-600" :class="round.mirrorEnabled ? '' : 'ml-auto'">🍹 Коктейль</span>
                         </div>
                         <p class="mt-2 text-stone-800" x-text="round.question.situation"></p>
                         <p class="mt-2 text-xs font-semibold text-amber-600">Награда: +<span x-text="round.question.rewardSparks"></span> искр</p>

@@ -22,6 +22,8 @@ class GameRound extends Model
         'reader_player_id',
         'reader_emotion_id',
         'current_interrogation_player_id',
+        'mirror_enabled',
+        'cocktail_enabled',
         'started_at',
         'revealed_at',
     ];
@@ -30,6 +32,8 @@ class GameRound extends Model
     {
         return [
             'status' => RoundStatus::class,
+            'mirror_enabled' => 'boolean',
+            'cocktail_enabled' => 'boolean',
             'started_at' => 'datetime',
             'revealed_at' => 'datetime',
         ];

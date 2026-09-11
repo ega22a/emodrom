@@ -77,6 +77,11 @@
                         <span class="font-semibold text-stone-700">Читает: <span x-text="round.reader.name"></span></span>
                     </div>
 
+                    <div class="mt-3 flex justify-center gap-2" x-show="round.mirrorEnabled || round.cocktailEnabled">
+                        <span x-show="round.mirrorEnabled" class="rounded-full bg-white px-3 py-1 text-sm font-semibold text-stone-600 shadow-sm">🪞 Зеркало</span>
+                        <span x-show="round.cocktailEnabled" class="rounded-full bg-white px-3 py-1 text-sm font-semibold text-stone-600 shadow-sm">🍹 Коктейль</span>
+                    </div>
+
                     <p class="mt-8 text-3xl font-semibold leading-snug text-stone-900" x-text="round.question.situation"></p>
                     <p class="mt-4 text-amber-600">Награда: +<span x-text="round.question.rewardSparks"></span> искр</p>
 

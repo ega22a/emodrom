@@ -190,6 +190,93 @@ class GameRoundLifecycleTest extends TestCase
         $this->assertNull($round->fresh()->current_interrogation_player_id);
     }
 
+    public function test_cocktail_round_awards_sparks_when_either_pick_matches_the_reader(): void
+    {
+        $lobby = $this->configuredLobby(rewardSparks: 5);
+        $join = app(JoinLobbyAction::class);
+        $alice = $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $bob = $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+        $carol = $join->execute($lobby, new JoinLobbyData('Carol', 'fish'));
+
+        $joy = Emotion::where('key', 'joy')->firstOrFail();
+        $fear = Emotion::where('key', 'fear')->firstOrFail();
+        $sadness = Emotion::where('key', 'sadness')->firstOrFail();
+
+        $round = app(StartRoundAction::class)->execute($lobby, mirrorEnabled: false, cocktailEnabled: true);
+        app(SubmitReaderEmotionAction::class)->execute($round, $alice, $joy);
+        // Bob's secondary pick matches the reader; Carol matches neither.
+        app(CastVoteAction::class)->execute($round, $bob, $fear, $joy);
+        app(CastVoteAction::class)->execute($round, $carol, $fear, $sadness);
+
+        app(RevealRoundAction::class)->execute($round->fresh());
+
+        $this->assertSame(5, $bob->fresh()->sparks_balance);
+        $this->assertSame(0, $carol->fresh()->sparks_balance);
+        $this->assertSame(0, $alice->fresh()->sparks_balance);
+    }
+
+    public function test_casting_a_vote_in_a_cocktail_round_requires_two_emotions(): void
+    {
+        $lobby = $this->configuredLobby();
+        $join = app(JoinLobbyAction::class);
+        $alice = $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $bob = $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+
+        $joy = Emotion::where('key', 'joy')->firstOrFail();
+
+        $round = app(StartRoundAction::class)->execute($lobby, mirrorEnabled: false, cocktailEnabled: true);
+        app(SubmitReaderEmotionAction::class)->execute($round, $alice, $joy);
+
+        $this->expectException(GameException::class);
+        app(CastVoteAction::class)->execute($round, $bob, $joy);
+    }
+
+    public function test_casting_a_vote_with_a_secondary_emotion_outside_a_cocktail_round_fails(): void
+    {
+        $lobby = $this->configuredLobby();
+        $join = app(JoinLobbyAction::class);
+        $alice = $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $bob = $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+
+        $joy = Emotion::where('key', 'joy')->firstOrFail();
+        $fear = Emotion::where('key', 'fear')->firstOrFail();
+
+        $round = app(StartRoundAction::class)->execute($lobby);
+        app(SubmitReaderEmotionAction::class)->execute($round, $alice, $joy);
+
+        $this->expectException(GameException::class);
+        app(CastVoteAction::class)->execute($round, $bob, $fear, $joy);
+    }
+
+    public function test_cocktail_interrogation_groups_by_the_primary_pick_with_one_row_per_player(): void
+    {
+        $lobby = $this->configuredLobby(interrogationEnabled: true);
+        $join = app(JoinLobbyAction::class);
+        $alice = $join->execute($lobby, new JoinLobbyData('Alice', 'cat'));
+        $bob = $join->execute($lobby, new JoinLobbyData('Bob', 'dog'));
+        $carol = $join->execute($lobby, new JoinLobbyData('Carol', 'fish'));
+
+        $joy = Emotion::where('key', 'joy')->firstOrFail();
+        $fear = Emotion::where('key', 'fear')->firstOrFail();
+        $sadness = Emotion::where('key', 'sadness')->firstOrFail();
+        $anger = Emotion::where('key', 'anger')->firstOrFail();
+
+        $round = app(StartRoundAction::class)->execute($lobby, mirrorEnabled: false, cocktailEnabled: true);
+        app(SubmitReaderEmotionAction::class)->execute($round, $alice, $joy);
+        // Neither of Bob's or Carol's two picks match the reader's "joy".
+        app(CastVoteAction::class)->execute($round, $bob, $fear, $sadness);
+        app(CastVoteAction::class)->execute($round, $carol, $anger, $sadness);
+
+        app(RevealRoundAction::class)->execute($round->fresh());
+        $round = $round->fresh();
+
+        $this->assertSame(2, $round->interrogations()->count());
+        $this->assertSame(
+            [$bob->id, $carol->id],
+            $round->interrogations()->pluck('player_id')->sort()->values()->all()
+        );
+    }
+
     public function test_cancelling_a_round_deletes_it_without_side_effects(): void
     {
         $lobby = $this->configuredLobby();
