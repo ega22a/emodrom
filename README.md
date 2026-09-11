@@ -1,6 +1,6 @@
-# Лас Кукарачас — сервис лобби
+# Эмодром — сервис лобби
 
-Веб-сервис для настольной игры «Лас Кукарачас»: ведущий создаёт лобби на
+Веб-сервис для настольной игры «Эмодром»: ведущий создаёт лобби на
 экране (проектор), игроки подключаются со смартфонов по QR-коду, выбирают
 имя и аватар, а затем в каждом раунде угадывают эмоции друг друга. Экран
 ведущего обновляется в реальном времени через WebSocket (Laravel Reverb).
@@ -46,7 +46,7 @@ composer run dev
 ## Деплой на сервер с Apache2
 
 Ниже — пошаговая инструкция и примеры конфигов для боевого сервера на
-Ubuntu/Debian с Apache2. В качестве домена используется `kukarachas.example.com`
+Ubuntu/Debian с Apache2. В качестве домена используется `emodrom.example.com`
 — замените на свой везде, где он встречается.
 
 ### 1. Требования к серверу
@@ -70,10 +70,10 @@ sudo a2enmod rewrite proxy proxy_http proxy_wstunnel ssl headers
 ### 2. Код и зависимости
 
 ```bash
-sudo mkdir -p /var/www/kukarachas
-sudo chown $USER:$USER /var/www/kukarachas
-git clone <ваш-репозиторий> /var/www/kukarachas
-cd /var/www/kukarachas
+sudo mkdir -p /var/www/emodrom
+sudo chown $USER:$USER /var/www/emodrom
+git clone <ваш-репозиторий> /var/www/emodrom
+cd /var/www/emodrom
 
 composer install --no-dev --optimize-autoloader
 npm ci
@@ -94,15 +94,15 @@ php artisan key:generate --force
 разработки:
 
 ```dotenv
-APP_NAME="Лас Кукарачас"
+APP_NAME="Эмодром"
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://kukarachas.example.com
+APP_URL=https://emodrom.example.com
 
 DB_CONNECTION=sqlite
 # путь ниже должен существовать и быть доступен для записи пользователю
 # Apache (см. шаг про права доступа)
-# DB_DATABASE=/var/www/kukarachas/database/database.sqlite
+# DB_DATABASE=/var/www/emodrom/database/database.sqlite
 
 BROADCAST_CONNECTION=reverb
 QUEUE_CONNECTION=database
@@ -123,7 +123,7 @@ REVERB_SCHEME=http
 # Браузер игрока подключается к тому же домену по wss:// через 443 —
 # Apache проксирует этот путь на внутренний Reverb (см. конфиг ниже):
 VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
-VITE_REVERB_HOST=kukarachas.example.com
+VITE_REVERB_HOST=emodrom.example.com
 VITE_REVERB_PORT=443
 VITE_REVERB_SCHEME=https
 ```
@@ -155,16 +155,16 @@ Apache и PHP.
 ### 5. Права доступа
 
 ```bash
-sudo chown -R www-data:www-data /var/www/kukarachas
-sudo find /var/www/kukarachas -type d -exec chmod 755 {} \;
-sudo find /var/www/kukarachas -type f -exec chmod 644 {} \;
-sudo chmod -R 775 /var/www/kukarachas/storage /var/www/kukarachas/bootstrap/cache
+sudo chown -R www-data:www-data /var/www/emodrom
+sudo find /var/www/emodrom -type d -exec chmod 755 {} \;
+sudo find /var/www/emodrom -type f -exec chmod 644 {} \;
+sudo chmod -R 775 /var/www/emodrom/storage /var/www/emodrom/bootstrap/cache
 ```
 
 ### 6. Миграции и кеш конфигурации
 
 ```bash
-cd /var/www/kukarachas
+cd /var/www/emodrom
 php artisan migrate --force
 php artisan db:seed --force --class=Database\\Seeders\\EmotionSeeder
 
@@ -184,18 +184,18 @@ Reverb должен работать постоянно как отдельны�
 `127.0.0.1` — наружу его порт светить не нужно, снаружи все запросы идут
 через Apache на 443.
 
-Создайте `/etc/systemd/system/kukarachas-reverb.service`:
+Создайте `/etc/systemd/system/emodrom-reverb.service`:
 
 ```ini
 [Unit]
-Description=Лас Кукарачас — Reverb WebSocket server
+Description=Эмодром — Reverb WebSocket server
 After=network.target
 
 [Service]
 Type=simple
 User=www-data
 Group=www-data
-WorkingDirectory=/var/www/kukarachas
+WorkingDirectory=/var/www/emodrom
 ExecStart=/usr/bin/php artisan reverb:start --host=127.0.0.1 --port=8080
 Restart=always
 RestartSec=5
@@ -208,8 +208,8 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now kukarachas-reverb
-sudo systemctl status kukarachas-reverb
+sudo systemctl enable --now emodrom-reverb
+sudo systemctl status emodrom-reverb
 ```
 
 Очередь (`QUEUE_CONNECTION`) отдельного воркера не требует: все broadcast-
@@ -218,37 +218,37 @@ sudo systemctl status kukarachas-reverb
 
 ### 8. Конфиг Apache для домена
 
-Создайте `/etc/apache2/sites-available/kukarachas.conf`:
+Создайте `/etc/apache2/sites-available/emodrom.conf`:
 
 ```apache
 # Редирект с HTTP на HTTPS
 <VirtualHost *:80>
-    ServerName kukarachas.example.com
-    Redirect permanent / https://kukarachas.example.com/
+    ServerName emodrom.example.com
+    Redirect permanent / https://emodrom.example.com/
 </VirtualHost>
 
 <VirtualHost *:443>
-    ServerName kukarachas.example.com
-    DocumentRoot /var/www/kukarachas/public
+    ServerName emodrom.example.com
+    DocumentRoot /var/www/emodrom/public
 
-    <Directory /var/www/kukarachas/public>
+    <Directory /var/www/emodrom/public>
         AllowOverride All
         Require all granted
     </Directory>
 
     # WebSocket (Laravel Echo / Reverb, Pusher-совместимый протокол).
-    # Браузер стучится на wss://kukarachas.example.com/app/{key} —
+    # Браузер стучится на wss://emodrom.example.com/app/{key} —
     # проксируем именно этот путь на внутренний Reverb.
     ProxyRequests Off
     ProxyPass /app/ ws://127.0.0.1:8080/app/
     ProxyPassReverse /app/ ws://127.0.0.1:8080/app/
 
     SSLEngine on
-    SSLCertificateFile /etc/letsencrypt/live/kukarachas.example.com/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/kukarachas.example.com/privkey.pem
+    SSLCertificateFile /etc/letsencrypt/live/emodrom.example.com/fullchain.pem
+    SSLCertificateKeyFile /etc/letsencrypt/live/emodrom.example.com/privkey.pem
 
-    ErrorLog ${APACHE_LOG_DIR}/kukarachas-error.log
-    CustomLog ${APACHE_LOG_DIR}/kukarachas-access.log combined
+    ErrorLog ${APACHE_LOG_DIR}/emodrom-error.log
+    CustomLog ${APACHE_LOG_DIR}/emodrom-access.log combined
 </VirtualHost>
 ```
 
@@ -265,7 +265,7 @@ nginx) не нужно.
 Включите сайт и перезапустите Apache:
 
 ```bash
-sudo a2ensite kukarachas.conf
+sudo a2ensite emodrom.conf
 sudo apache2ctl configtest
 sudo systemctl reload apache2
 ```
@@ -276,15 +276,15 @@ sudo systemctl reload apache2
 
 ```bash
 sudo apt install certbot python3-certbot-apache
-sudo certbot --apache -d kukarachas.example.com
+sudo certbot --apache -d emodrom.example.com
 ```
 
 ### 9. Проверка после деплоя
 
-- `https://kukarachas.example.com/` открывает страницу создания лобби.
+- `https://emodrom.example.com/` открывает страницу создания лобби.
 - В консоли браузера на экране ведущего не должно быть ошибок
   `WebSocket connection failed` — если есть, проверьте:
-  - что служба `kukarachas-reverb` запущена (`systemctl status`);
+  - что служба `emodrom-reverb` запущена (`systemctl status`);
   - что модули `proxy`/`proxy_wstunnel` включены и Apache перезапущен;
   - что `VITE_REVERB_*` в `.env` указывают на публичный домен/443/https,
     а фронтенд пересобран после их изменения (`npm run build`);

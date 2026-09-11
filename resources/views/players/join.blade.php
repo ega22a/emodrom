@@ -1,4 +1,4 @@
-<x-layout title="Присоединиться — Лас Кукарачас">
+<x-layout title="Присоединиться — Эмодром">
     <div class="mx-auto flex min-h-dvh max-w-md flex-col px-5 py-8">
         <div class="text-center">
             <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold tracking-wide text-amber-700">

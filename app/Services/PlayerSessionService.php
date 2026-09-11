@@ -46,6 +46,6 @@ class PlayerSessionService
 
     private function cookieName(Lobby $lobby): string
     {
-        return "kukarachas_player_{$lobby->code}";
+        return "emodrom_player_{$lobby->code}";
     }
 }

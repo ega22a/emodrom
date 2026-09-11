@@ -1,4 +1,4 @@
-<x-layout :title="$lobby->code.' — Лас Кукарачас'">
+<x-layout :title="$lobby->code.' — Эмодром'">
     <div
         class="flex min-h-dvh flex-col p-6 sm:p-10"
         x-data="hostScreen(@js($state), @js($lobby->code))"
@@ -9,7 +9,7 @@
                     <svg class="size-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-bug"></use></svg>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold text-stone-900">Лас Кукарачас</h1>
+                    <h1 class="text-2xl font-bold text-stone-900">Эмодром</h1>
                     <p class="text-sm text-stone-500" x-show="round" x-cloak>Раунд <span x-text="round?.number"></span></p>
                 </div>
             </div>
