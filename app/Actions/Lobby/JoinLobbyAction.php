@@ -20,6 +20,7 @@ class JoinLobbyAction
         $player = $lobby->players()->create([
             'name' => $data->name,
             'avatar' => $data->avatar,
+            'sparks_balance' => 0,
             'joined_at' => now(),
         ]);
 

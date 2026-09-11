@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('color');
             $table->string('icon');
             $table->boolean('is_base')->default(false);
+            $table->boolean('is_extended')->default(false);
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->timestamps();
         });

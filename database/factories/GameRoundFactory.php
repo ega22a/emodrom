@@ -5,6 +5,8 @@ namespace Database\Factories;
 use App\Enums\RoundStatus;
 use App\Models\GameRound;
 use App\Models\Lobby;
+use App\Models\Player;
+use App\Models\Question;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -22,18 +24,21 @@ class GameRoundFactory extends Factory
         return [
             'lobby_id' => Lobby::factory(),
             'number' => 1,
-            'status' => RoundStatus::Active,
-            'winning_emotion_id' => null,
+            'status' => RoundStatus::Voting,
+            'question_id' => Question::factory(),
+            'reader_player_id' => Player::factory(),
+            'reader_emotion_id' => null,
+            'current_interrogation_player_id' => null,
             'started_at' => now(),
-            'ended_at' => null,
+            'revealed_at' => null,
         ];
     }
 
-    public function completed(): static
+    public function revealed(): static
     {
         return $this->state(fn (array $attributes): array => [
-            'status' => RoundStatus::Completed,
-            'ended_at' => now(),
+            'status' => RoundStatus::Revealed,
+            'revealed_at' => now(),
         ]);
     }
 }

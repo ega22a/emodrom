@@ -2,12 +2,17 @@
 
 namespace App\Http\Resources;
 
+use App\Data\QuestionData;
 use App\Models\GameRound;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @mixin GameRound
+ *
+ * Deliberately never exposes reader_emotion_id — the reader's pick stays
+ * private until RevealRoundAction runs, and that flows through a separate
+ * reveal broadcast/endpoint, not this resource.
  */
 class GameRoundResource extends JsonResource
 {
@@ -22,7 +27,8 @@ class GameRoundResource extends JsonResource
             'id' => $this->id,
             'number' => $this->number,
             'status' => $this->status->value,
-            'winningEmotion' => EmotionResource::make($this->whenLoaded('winningEmotion')),
+            'reader' => PlayerResource::make($this->reader),
+            'question' => QuestionData::fromModel($this->question)->toArray(),
         ];
     }
 }

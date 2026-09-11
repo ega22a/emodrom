@@ -2,18 +2,18 @@
 
 namespace App\Events;
 
-use App\Data\VoteStatsData;
+use App\Data\VoteProgressData;
 use App\Models\Lobby;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 
-class VoteStatsUpdated implements ShouldBroadcastNow
+class VoteProgressUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets;
 
-    public function __construct(private Lobby $lobby, public VoteStatsData $stats) {}
+    public function __construct(private Lobby $lobby, public VoteProgressData $progress) {}
 
     /**
      * @return array<int, Channel>
@@ -25,7 +25,7 @@ class VoteStatsUpdated implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'vote.stats-updated';
+        return 'vote.progress-updated';
     }
 
     /**
@@ -33,6 +33,6 @@ class VoteStatsUpdated implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        return ['stats' => $this->stats->toArray()];
+        return ['progress' => $this->progress->toArray()];
     }
 }

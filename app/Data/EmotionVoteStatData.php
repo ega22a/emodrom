@@ -13,6 +13,7 @@ class EmotionVoteStatData extends Data
     public function __construct(
         public EmotionData $emotion,
         public int $votesCount,
+        public bool $matchedReader,
         public DataCollection $voters,
     ) {}
 }

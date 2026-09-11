@@ -23,6 +23,7 @@ class PlayerFactory extends Factory
             'lobby_id' => Lobby::factory(),
             'name' => $this->faker->firstName(),
             'avatar' => $this->faker->randomElement(Avatars::keys()),
+            'sparks_balance' => 0,
             'joined_at' => now(),
         ];
     }

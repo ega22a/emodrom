@@ -2,30 +2,23 @@
 
 namespace App\Actions\Lobby;
 
-use App\Actions\Round\EndRoundAction;
 use App\Enums\LobbyStatus;
 use App\Events\LobbyClosed;
 use App\Models\Lobby;
-use Illuminate\Support\Facades\DB;
 
 class CloseLobbyAction
 {
-    public function __construct(private EndRoundAction $endRound) {}
-
+    /**
+     * Closing doesn't need to finalize an in-progress round: reveals are
+     * host-triggered explicitly now, so a round left mid-voting when the
+     * lobby closes simply never gets revealed.
+     */
     public function execute(Lobby $lobby): void
     {
-        DB::transaction(function () use ($lobby): void {
-            $currentRound = $lobby->currentRound();
-
-            if ($currentRound) {
-                $this->endRound->execute($currentRound);
-            }
-
-            $lobby->update([
-                'status' => LobbyStatus::Closed,
-                'closed_at' => now(),
-            ]);
-        });
+        $lobby->update([
+            'status' => LobbyStatus::Closed,
+            'closed_at' => now(),
+        ]);
 
         LobbyClosed::dispatch($lobby);
     }

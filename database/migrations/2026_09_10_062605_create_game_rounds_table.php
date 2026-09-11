@@ -16,10 +16,13 @@ return new class extends Migration
             $table->id();
             $table->foreignId('lobby_id')->constrained()->cascadeOnDelete();
             $table->unsignedSmallInteger('number');
-            $table->string('status')->default(RoundStatus::Active->value);
-            $table->foreignId('winning_emotion_id')->nullable()->constrained('emotions')->nullOnDelete();
+            $table->string('status')->default(RoundStatus::Voting->value);
+            $table->foreignId('question_id')->constrained();
+            $table->foreignId('reader_player_id')->constrained('players');
+            $table->foreignId('reader_emotion_id')->nullable()->constrained('emotions')->nullOnDelete();
+            $table->foreignId('current_interrogation_player_id')->nullable()->constrained('players')->nullOnDelete();
             $table->timestamp('started_at');
-            $table->timestamp('ended_at')->nullable();
+            $table->timestamp('revealed_at')->nullable();
             $table->timestamps();
 
             $table->unique(['lobby_id', 'number']);

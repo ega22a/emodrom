@@ -2,6 +2,8 @@
 
 namespace App\Events;
 
+use App\Data\PlayerData;
+use App\Data\QuestionData;
 use App\Models\GameRound;
 use App\Models\Lobby;
 use Illuminate\Broadcasting\Channel;
@@ -15,9 +17,17 @@ class RoundStarted implements ShouldBroadcastNow
 
     public int $roundNumber;
 
+    public PlayerData $reader;
+
+    public QuestionData $question;
+
     public function __construct(private Lobby $lobby, GameRound $round)
     {
+        $round->loadMissing(['reader', 'question']);
+
         $this->roundNumber = $round->number;
+        $this->reader = PlayerData::fromModel($round->reader);
+        $this->question = QuestionData::fromModel($round->question);
     }
 
     /**
@@ -38,6 +48,10 @@ class RoundStarted implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        return ['roundNumber' => $this->roundNumber];
+        return [
+            'roundNumber' => $this->roundNumber,
+            'reader' => $this->reader->toArray(),
+            'question' => $this->question->toArray(),
+        ];
     }
 }

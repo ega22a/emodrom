@@ -15,3 +15,43 @@
  * build regardless.
  */
 @source inline("{bg,border,ring,text}-{amber,orange,red,rose,pink,fuchsia,purple,violet,indigo,blue,sky,cyan,teal,emerald,green,lime,yellow,stone,gray}-{100,300,500,600,700}");
+
+/* Screen reveal animations — a Jackbox-style drop-in for voter avatars and
+   a "drumroll" pulse for the emotion currently being announced. */
+@keyframes drop-in {
+    0% {
+        opacity: 0;
+        transform: translateY(-28px) scale(0.5);
+    }
+    60% {
+        opacity: 1;
+        transform: translateY(6px) scale(1.08);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes pop-in {
+    0% {
+        opacity: 0;
+        transform: scale(0.6);
+    }
+    70% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-drop-in {
+    animation: drop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.animate-pop-in {
+    animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}

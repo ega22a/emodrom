@@ -24,6 +24,7 @@ class PlayerResource extends JsonResource
             'name' => $this->name,
             'avatar' => $this->avatar,
             'avatarColor' => Avatars::color($this->avatar),
+            'sparksBalance' => $this->sparks_balance,
         ];
     }
 }

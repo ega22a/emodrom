@@ -10,7 +10,8 @@ export default defineConfig({
                 'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/player-screen.js',
-                'resources/js/host-screen.js',
+                'resources/js/host-panel.js',
+                'resources/js/screen.js',
             ],
             refresh: true,
             fonts: [

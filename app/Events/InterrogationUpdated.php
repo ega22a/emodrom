@@ -2,18 +2,18 @@
 
 namespace App\Events;
 
-use App\Data\RoundResultData;
+use App\Data\InterrogationStateData;
 use App\Models\Lobby;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 
-class RoundEnded implements ShouldBroadcastNow
+class InterrogationUpdated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets;
 
-    public function __construct(private Lobby $lobby, public RoundResultData $result) {}
+    public function __construct(private Lobby $lobby, public InterrogationStateData $state) {}
 
     /**
      * @return array<int, Channel>
@@ -25,7 +25,7 @@ class RoundEnded implements ShouldBroadcastNow
 
     public function broadcastAs(): string
     {
-        return 'round.ended';
+        return 'interrogation.updated';
     }
 
     /**
@@ -33,6 +33,6 @@ class RoundEnded implements ShouldBroadcastNow
      */
     public function broadcastWith(): array
     {
-        return ['result' => $this->result->toArray()];
+        return ['state' => $this->state->toArray()];
     }
 }

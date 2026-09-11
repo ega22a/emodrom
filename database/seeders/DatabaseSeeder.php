@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call(EmotionSeeder::class);
+        $this->call(QuestionBankSeeder::class);
     }
 }

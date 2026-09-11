@@ -2,11 +2,13 @@
 
 namespace App\Models;
 
+use App\Enums\EmotionSet;
 use App\Enums\LobbyStatus;
 use App\Enums\RoundStatus;
 use Database\Factories\LobbyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Lobby extends Model
@@ -18,6 +20,11 @@ class Lobby extends Model
         'code',
         'status',
         'closed_at',
+        'host_token',
+        'question_bank_id',
+        'round_limit',
+        'interrogation_enabled',
+        'emotion_set',
     ];
 
     protected function casts(): array
@@ -25,6 +32,8 @@ class Lobby extends Model
         return [
             'status' => LobbyStatus::class,
             'closed_at' => 'datetime',
+            'interrogation_enabled' => 'boolean',
+            'emotion_set' => EmotionSet::class,
         ];
     }
 
@@ -49,10 +58,18 @@ class Lobby extends Model
         return $this->hasMany(GameRound::class);
     }
 
+    /**
+     * @return BelongsTo<QuestionBank, $this>
+     */
+    public function questionBank(): BelongsTo
+    {
+        return $this->belongsTo(QuestionBank::class);
+    }
+
     public function currentRound(): ?GameRound
     {
         return $this->rounds()
-            ->where('status', RoundStatus::Active)
+            ->where('status', RoundStatus::Voting)
             ->latest('number')
             ->first();
     }
@@ -60,5 +77,20 @@ class Lobby extends Model
     public function isOpen(): bool
     {
         return $this->status === LobbyStatus::Open;
+    }
+
+    public function isSessionConfigured(): bool
+    {
+        return $this->question_bank_id !== null;
+    }
+
+    public function roundsPlayedCount(): int
+    {
+        return $this->rounds()->count();
+    }
+
+    public function hasReachedRoundLimit(): bool
+    {
+        return $this->round_limit !== null && $this->roundsPlayedCount() >= $this->round_limit;
     }
 }

@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('players', function (Blueprint $table) {
+        Schema::create('question_banks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('lobby_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('avatar');
-            $table->timestamp('joined_at');
             $table->timestamps();
         });
     }
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('players');
+        Schema::dropIfExists('question_banks');
     }
 };
