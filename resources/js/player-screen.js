@@ -1,5 +1,5 @@
-document.addEventListener('alpine:init', () => {
-    Alpine.data('playerScreen', (initialState, lobbyCode) => ({
+export function playerScreen(initialState, lobbyCode) {
+    return {
         lobbyStatus: initialState.lobbyStatus,
         removed: initialState.removed,
         player: initialState.player,
@@ -172,5 +172,9 @@ document.addEventListener('alpine:init', () => {
                 this.buying = false;
             }
         },
-    }));
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('playerScreen', playerScreen);
 });

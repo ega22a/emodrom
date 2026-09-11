@@ -1,7 +1,7 @@
-document.addEventListener('alpine:init', () => {
-    const REVEAL_STEP_MS = 900;
+const REVEAL_STEP_MS = 900;
 
-    Alpine.data('screenDisplay', (initialState, lobbyCode, sfxBaseUrl) => ({
+export function screenDisplay(initialState, lobbyCode, sfxBaseUrl) {
+    return {
         lobby: initialState.lobby,
         round: initialState.round,
         lastResult: initialState.lastResult,
@@ -186,5 +186,9 @@ document.addEventListener('alpine:init', () => {
 
             new Audio(`${sfxBaseUrl}/${name}.wav`).play().catch(() => {});
         },
-    }));
+    };
+}
+
+document.addEventListener('alpine:init', () => {
+    Alpine.data('screenDisplay', screenDisplay);
 });
