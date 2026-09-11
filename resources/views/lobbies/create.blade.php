@@ -1,10 +1,10 @@
-<x-layout title="Лас Кукарачас">
+<x-layout title="Эмодром">
     <div class="flex min-h-dvh flex-col items-center justify-center px-6 py-12 text-center">
         <div class="flex size-24 items-center justify-center rounded-full bg-amber-500 text-white shadow-md">
             <x-icon name="bug" class="size-12" />
         </div>
 
-        <h1 class="mt-8 text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">Лас Кукарачас</h1>
+        <h1 class="mt-8 text-4xl font-bold tracking-tight text-stone-900 sm:text-5xl">Эмодром</h1>
         <p class="mt-3 text-lg text-stone-500">Укроти своих тараканов!</p>
 
         <p class="mx-auto mt-6 max-w-md text-balance text-stone-600">

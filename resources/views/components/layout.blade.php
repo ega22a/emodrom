@@ -1,4 +1,4 @@
-@props(['title' => 'Лас Кукарачас'])
+@props(['title' => 'Эмодром'])
 <!DOCTYPE html>
 <html lang="ru" data-theme="light">
 <head>

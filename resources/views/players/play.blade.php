@@ -1,4 +1,4 @@
-<x-layout title="{{ $lobby->code }} — Лас Кукарачас">
+<x-layout title="{{ $lobby->code }} — Эмодром">
     <div
         class="mx-auto flex min-h-dvh max-w-md flex-col px-5 py-6"
         x-data="playerScreen(@js($state), @js($lobby->code))"

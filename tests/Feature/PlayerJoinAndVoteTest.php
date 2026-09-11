@@ -112,7 +112,7 @@ class PlayerJoinAndVoteTest extends TestCase
      */
     private function asJoinedPlayer(TestResponse $joinResponse, Lobby $lobby): self
     {
-        $cookieName = "kukarachas_player_{$lobby->code}";
+        $cookieName = "emodrom_player_{$lobby->code}";
         $playerId = $joinResponse->getCookie($cookieName)->getValue();
 
         return $this->withCredentials()->withCookie($cookieName, $playerId);
