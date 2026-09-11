@@ -22,5 +22,7 @@
                 Создать лобби
             </button>
         </form>
+
+        <a href="{{ route('about') }}" class="mt-8 text-sm text-stone-400 underline hover:text-stone-600">Об игре и благодарности</a>
     </div>
 </x-layout>

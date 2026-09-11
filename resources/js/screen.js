@@ -9,6 +9,7 @@ document.addEventListener('alpine:init', () => {
         voteProgress: { votedCount: 0, totalVoters: Math.max(initialState.lobby.players.length - 1, 0) },
         revealedGroupCount: initialState.lastResult ? initialState.lastResult.groups.length : 0,
         revealAnimationDone: Boolean(initialState.lastResult),
+        musicEnabled: JSON.parse(localStorage.getItem('emodrom.musicEnabled') ?? 'true'),
 
         get screen() {
             if (this.lobby.status === 'closed') {
@@ -47,6 +48,10 @@ document.addEventListener('alpine:init', () => {
         },
 
         init() {
+            ['click', 'keydown', 'touchstart'].forEach((event) => {
+                document.addEventListener(event, () => this.syncMusic(), { once: true });
+            });
+
             window.Echo.channel(`lobby.${lobbyCode}`)
                 .listen('.player.joined', (event) => {
                     if (!this.lobby.players.some((p) => p.id === event.player.id)) {
@@ -100,6 +105,22 @@ document.addEventListener('alpine:init', () => {
 
             if (this.lastResult.groups.length === 0) {
                 this.revealAnimationDone = true;
+            }
+        },
+
+        toggleMusic() {
+            this.musicEnabled = !this.musicEnabled;
+            localStorage.setItem('emodrom.musicEnabled', JSON.stringify(this.musicEnabled));
+            this.syncMusic();
+        },
+
+        syncMusic() {
+            const music = this.$refs.music;
+
+            if (this.musicEnabled && this.screen === 'idle') {
+                music.play().catch(() => {});
+            } else {
+                music.pause();
             }
         },
     }));

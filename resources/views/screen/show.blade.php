@@ -17,10 +17,21 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <button
+                    type="button"
+                    @click="toggleMusic()"
+                    class="flex size-11 items-center justify-center rounded-full bg-white text-stone-500 shadow-sm transition hover:text-stone-700"
+                    :class="musicEnabled ? 'text-amber-600' : ''"
+                    :aria-label="musicEnabled ? 'Выключить музыку' : 'Включить музыку'"
+                >
+                    <x-icon name="music-2" class="size-5" />
+                </button>
                 <img src="{{ route('lobbies.qr', $lobby) }}" alt="QR-код лобби" class="size-16 rounded-lg border border-stone-200 bg-white p-1">
                 <span class="rounded-full bg-white px-6 py-3 text-2xl font-bold tracking-[0.2em] text-amber-600 shadow-sm">{{ $lobby->code }}</span>
             </div>
         </header>
+
+        <audio x-ref="music" src="{{ asset('static/assets/sfx/lobby.wav') }}" loop preload="auto" x-effect="syncMusic()"></audio>
 
         <main class="mt-10 flex flex-1 flex-col items-center justify-center">
             <template x-if="screen === 'closed'">
