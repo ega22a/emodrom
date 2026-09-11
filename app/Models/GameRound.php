@@ -18,9 +18,12 @@ class GameRound extends Model
         'lobby_id',
         'number',
         'status',
-        'winning_emotion_id',
+        'question_id',
+        'reader_player_id',
+        'reader_emotion_id',
+        'current_interrogation_player_id',
         'started_at',
-        'ended_at',
+        'revealed_at',
     ];
 
     protected function casts(): array
@@ -28,7 +31,7 @@ class GameRound extends Model
         return [
             'status' => RoundStatus::class,
             'started_at' => 'datetime',
-            'ended_at' => 'datetime',
+            'revealed_at' => 'datetime',
         ];
     }
 
@@ -41,11 +44,35 @@ class GameRound extends Model
     }
 
     /**
+     * @return BelongsTo<Question, $this>
+     */
+    public function question(): BelongsTo
+    {
+        return $this->belongsTo(Question::class);
+    }
+
+    /**
+     * @return BelongsTo<Player, $this>
+     */
+    public function reader(): BelongsTo
+    {
+        return $this->belongsTo(Player::class, 'reader_player_id');
+    }
+
+    /**
      * @return BelongsTo<Emotion, $this>
      */
-    public function winningEmotion(): BelongsTo
+    public function readerEmotion(): BelongsTo
     {
-        return $this->belongsTo(Emotion::class, 'winning_emotion_id');
+        return $this->belongsTo(Emotion::class, 'reader_emotion_id');
+    }
+
+    /**
+     * @return BelongsTo<Player, $this>
+     */
+    public function currentInterrogationPlayer(): BelongsTo
+    {
+        return $this->belongsTo(Player::class, 'current_interrogation_player_id');
     }
 
     /**
@@ -56,8 +83,26 @@ class GameRound extends Model
         return $this->hasMany(Vote::class);
     }
 
-    public function isActive(): bool
+    /**
+     * @return HasMany<Interrogation, $this>
+     */
+    public function interrogations(): HasMany
     {
-        return $this->status === RoundStatus::Active;
+        return $this->hasMany(Interrogation::class);
+    }
+
+    public function isVoting(): bool
+    {
+        return $this->status === RoundStatus::Voting;
+    }
+
+    public function isRevealed(): bool
+    {
+        return $this->status === RoundStatus::Revealed;
+    }
+
+    public function readerHasChosen(): bool
+    {
+        return $this->reader_emotion_id !== null;
     }
 }

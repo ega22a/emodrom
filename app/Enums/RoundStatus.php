@@ -4,6 +4,6 @@ namespace App\Enums;
 
 enum RoundStatus: string
 {
-    case Active = 'active';
-    case Completed = 'completed';
+    case Voting = 'voting';
+    case Revealed = 'revealed';
 }

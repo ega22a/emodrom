@@ -19,6 +19,7 @@ class Emotion extends Model
         'color',
         'icon',
         'is_base',
+        'is_extended',
         'sort_order',
     ];
 
@@ -26,6 +27,7 @@ class Emotion extends Model
     {
         return [
             'is_base' => 'boolean',
+            'is_extended' => 'boolean',
             'sort_order' => 'integer',
         ];
     }

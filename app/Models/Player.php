@@ -18,12 +18,14 @@ class Player extends Model
         'lobby_id',
         'name',
         'avatar',
+        'sparks_balance',
         'joined_at',
     ];
 
     protected function casts(): array
     {
         return [
+            'sparks_balance' => 'integer',
             'joined_at' => 'datetime',
         ];
     }
@@ -54,6 +56,22 @@ class Player extends Model
         return $this->hasMany(Vote::class);
     }
 
+    /**
+     * @return HasMany<GameRound, $this>
+     */
+    public function roundsRead(): HasMany
+    {
+        return $this->hasMany(GameRound::class, 'reader_player_id');
+    }
+
+    /**
+     * @return HasMany<Interrogation, $this>
+     */
+    public function interrogations(): HasMany
+    {
+        return $this->hasMany(Interrogation::class);
+    }
+
     public function hasUnlocked(Emotion $emotion): bool
     {
         return $this->emotions()->whereKey($emotion->id)->exists();
@@ -62,5 +80,10 @@ class Player extends Model
     public function hasVotedIn(GameRound $round): bool
     {
         return $this->votes()->where('game_round_id', $round->id)->exists();
+    }
+
+    public function canAfford(int $sparks): bool
+    {
+        return $this->sparks_balance >= $sparks;
     }
 }
