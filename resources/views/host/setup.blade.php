@@ -50,6 +50,7 @@
 
             <label class="flex items-center justify-between rounded-xl border border-stone-300 px-4 py-3">
                 <span class="text-sm font-medium text-stone-700">Режим допроса</span>
+                <input type="hidden" name="interrogation_enabled" value="0">
                 <input
                     type="checkbox"
                     name="interrogation_enabled"

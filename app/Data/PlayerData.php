@@ -13,6 +13,7 @@ class PlayerData extends Data
         public string $name,
         public string $avatar,
         public string $avatarColor,
+        public int $sparksBalance,
     ) {}
 
     public static function fromModel(Player $player): self
@@ -22,6 +23,7 @@ class PlayerData extends Data
             name: $player->name,
             avatar: $player->avatar,
             avatarColor: Avatars::color($player->avatar),
+            sparksBalance: $player->sparks_balance,
         );
     }
 }
