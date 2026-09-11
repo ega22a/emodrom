@@ -37,3 +37,9 @@ window.Alpine = Alpine;
  * DOMContentLoaded, by which point every deferred module has executed.
  */
 document.addEventListener('DOMContentLoaded', () => Alpine.start());
+
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+}
